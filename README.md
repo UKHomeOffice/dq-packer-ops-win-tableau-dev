@@ -1,5 +1,5 @@
-# dq-packer-ops-win-bastion
-This AMI is used as a bastion/jump box and has got various tools installed required to manage various services within the DQ environment.
+# dq-packer-ops-win-tableau-dev
+This AMI is used to create a Tableau Development server and has got various tools installed required to manage Tableau and related services.
 
 ## Features
 
@@ -12,14 +12,15 @@ Ansible playbook installing the following:
 - Chocolatey package manager
 - Python2.7
 - Python3
-- VNC viewer
 - Google Chrome
 - Putty
 - AWS CLI
 - AWS Toolkit for Powershell
 - PGAdmin 1.18.1
-- Notepad++
+- PGAdmin 4
 - Microsoft SQL Management Studio
+- Tableau Desktop
+- DBeaver
 
 ### `connection_plugins`
 - `packer.py` ssh based connections for powershell via packer
