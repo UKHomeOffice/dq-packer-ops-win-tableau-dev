@@ -1,0 +1,64 @@
+{
+  "variables": {
+    "access_key": "{{env `AWS_ACCESS_KEY_ID`}}",
+    "secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "access_key": "{{user `access_key`}}",
+      "secret_key": "{{user `secret_key`}}",
+      "region": "eu-west-2",
+      "iam_instance_profile": "packer_builder",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "Windows_Server-2012-R2_RTM-English-64Bit-Base-*",
+          "root-device-type": "ebs"
+        },
+        "owners": [
+          "801119661308"
+        ],
+        "most_recent": true
+      },
+      "launch_block_device_mappings": [
+        {
+          "device_name": "/dev/sda1",
+          "volume_size": 80,
+          "volume_type": "gp2",
+          "delete_on_termination": true
+        }
+      ],
+      "communicator": "winrm",
+      "winrm_username": "Administrator",
+      "winrm_use_ssl": true,
+      "winrm_insecure": true,
+      "user_data_file": "./scripts/setupwrm.ps1",
+      "instance_type": "t2.medium",
+      "ami_name": "dq-ops-win-tab-dev- {{isotime | clean_ami_name}}",
+      "ami_users": [
+        "483846886818",
+        "337779336338"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "ansible",
+      "playbook_file": "./playbook.yml",
+      "ansible_env_vars": [ "ANSIBLE_HOST_KEY_CHECKING=False", "ANSIBLE_SSH_ARGS='-o ControlMaster=auto -o ControlPersist=60s -o ControlPath=/dev/shm/cp%%h-%%p-%%r'", "ANSIBLE_NOCOLOR=True", "ANSIBLE_TIMEOUT=30" ],
+      "extra_arguments": [
+        "--connection", "packer",
+        "--extra-vars", "ansible_shell_type=powershell ansible_shell_executable=None"
+      ]
+    },
+    {
+      "type": "powershell",
+      "scripts": [
+          "./scripts/disable-esc-and-uac.ps1",
+          "./scripts/sysprep-ec2config.ps1",
+          "./scripts/sysprep-bundleconfig.ps1"
+      ]
+    }
+  ]
+}
