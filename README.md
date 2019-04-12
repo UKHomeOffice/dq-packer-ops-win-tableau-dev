@@ -1,12 +1,15 @@
 # dq-packer-ops-win-tableau-dev
+
 This AMI is used to create a Tableau Development server and has got various tools installed required to manage Tableau and related services.
 
 ## Features
 
 ### `packer.json`
+
 This file contains a wrap up for Ansible script to be run inside a Windows 2012 R2 server
 
 ### `playbook.yml`
+
 Ansible playbook installing the following:
 - PSTools
 - Chocolatey package manager
