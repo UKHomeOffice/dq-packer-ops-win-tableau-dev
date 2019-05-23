@@ -16,6 +16,10 @@
         Add-WindowsFeature –Name GPMC
         Add-WindowsFeature -Name Telnet-Client
 
+    - name: Set timezone to 'GMT Standard Time' (GMT)
+      win_timezone:
+        timezone: GMT Standard Time
+
     - name: Create tmp directory
       win_file:
         path: C:\tmp\install
