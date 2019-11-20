@@ -52,6 +52,15 @@
         name: python3
         state: present
 
+    - name: Install VNC viewer
+       win_chocolatey:
+         name: vnc-viewer
+         state: present
+
+    - name: Install python packages
+      win_shell: |
+        pip install boto3
+
     - name: Install Google Chrome
       win_chocolatey:
         name: googlechrome
@@ -177,6 +186,7 @@
     - win_shortcut:
         src: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
         dest: 'C:\Users\Public\Desktop\SQLWorkbench\SQLWorkbench.lnk'
+        args: -configDir=C:\Users\Public\.sqlworkbench
         icon: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
 
     - name: Install DBeaver
@@ -188,6 +198,11 @@
       win_get_url:
         url: https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC_2.0.7/AthenaJDBC42_2.0.7.jar
         dest: C:\Users\Public\Desktop\SQLWorkbench\AthenaJDBC42_2.0.7.jar
+
+    - name: Download PostgreSQL JDBC Driver
+      win_get_url:
+        url: https://jdbc.postgresql.org/download/postgresql-42.2.5.jar
+        dest: C:\Users\Public\Desktop\SQLWorkbench\postgresql-42.2.5.jar
 
     - name: Download SQL Management studio
       win_shell: |
@@ -213,6 +228,11 @@
     - name: Copy stopped service monitoring PS script
       win_copy:
         src: ./scripts/monitor_stopped_win_services.ps1
+        dest: C:\scripts\
+
+    - name: Copy sqlworkbench config script
+      win_copy:
+        src: ./scripts/pull-workbench-conf.py
         dest: C:\scripts\
 
     - name: Setup service monitor scheduled task
@@ -245,5 +265,10 @@
     - win_lineinfile:
         path: C:\Windows\System32\drivers\etc\hosts
         line: '10.1.14.111 tableau-carrierportal.dq.homeoffice.gov.uk www.tableau-carrierportal.dq.homeoffice.gov.uk'
+        state: present
+        insertafter: EOF
+    - win_lineinfile:
+        path: C:\Windows\System32\drivers\etc\hosts
+        line: '10.1.12.115 analysis-staging.dq.homeoffice.gov.uk www.analysis-staging.dq.homeoffice.gov.uk'
         state: present
         insertafter: EOF
