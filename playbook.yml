@@ -52,11 +52,6 @@
         name: python3
         state: present
 
-    - name: Install VNC viewer
-       win_chocolatey:
-         name: vnc-viewer
-         state: present
-
     - name: Install python packages
       win_shell: |
         pip install boto3
