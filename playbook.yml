@@ -241,7 +241,7 @@
         $task.Triggers.Repetition.Interval = "PT1M"
         $task | Set-ScheduledTask
 
-     - name: Setup sqlworkbench scheduled task
+    - name: Setup sqlworkbench scheduled task
       win_shell: |
         $action = New-ScheduledTaskAction -Execute "C:\Python37\python.exe" -Argument "C:\scripts\pull-workbench-conf.py"
         $trigger = New-ScheduledTaskTrigger -Daily -At (Get-Date)
