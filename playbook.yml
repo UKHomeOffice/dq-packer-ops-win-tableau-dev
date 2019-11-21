@@ -241,6 +241,17 @@
         $task.Triggers.Repetition.Interval = "PT1M"
         $task | Set-ScheduledTask
 
+     - name: Setup sqlworkbench scheduled task
+      win_shell: |
+        $action = New-ScheduledTaskAction -Execute "C:\Python37\python.exe" -Argument "C:\scripts\pull-workbench-conf.py"
+        $trigger = New-ScheduledTaskTrigger -Daily -At (Get-Date)
+        $description = "Run sqlworkbench config puller task every 30min"
+        $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+        $task = Register-ScheduledTask -TaskName "Sqlworkbench_Config_Puller" -Trigger $trigger -Action $action -Description $description -Principal $principal
+        $task.Triggers.Repetition.Duration = "P1D"
+        $task.Triggers.Repetition.Interval = "PT30M"
+        $task | Set-ScheduledTask
+
     - name: Add entries into Windows hosts file
       win_lineinfile:
         path: C:\Windows\System32\drivers\etc\hosts
