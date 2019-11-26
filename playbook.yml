@@ -75,10 +75,10 @@
         dest: C:\PSTools\
         delete_archive: yes
 
-    - name: Ensure that Python2.7 / Python3.6 and PsTools are present on the global system path
+    - name: Ensure that Python2.7 / Python3.7 and PsTools are present on the global system path
       win_path:
         elements:
-        - 'C:\Python36'
+        - 'C:\Python37'
         - 'C:\Python27'
         - 'C:\PSTools'
 
