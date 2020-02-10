@@ -125,6 +125,8 @@
 
     - name: Download PGAdmin3 1.18.1
       win_shell: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [System.Net.ServicePointManager]::SecurityProtocol = 3072
         $url = "https://ftp.postgresql.org/pub/pgadmin/pgadmin3/v1.18.1/win32/pgadmin3-1.18.1.zip"
         $output = "C:\tmp\install\pgadmin3-1.18.1.zip"
         $wc = New-Object System.Net.WebClient
