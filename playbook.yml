@@ -41,7 +41,7 @@
         [System.Net.ServicePointManager]::SecurityProtocol = 3072
         iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
         choco feature enable -n allowGlobalConfirmation
-        choco install chocolatey --version 0.10.11 --force
+        choco install chocolatey --version 0.10.15 --force
 
     - name: Install python2.7
       win_chocolatey:
@@ -179,6 +179,7 @@
       win_chocolatey:
         name: sql-workbench
         state: present
+        ignore_checksums: yes
     - win_file:
         path: C:\Users\Public\Desktop\SQLWorkbench
         state: directory
