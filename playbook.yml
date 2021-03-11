@@ -197,12 +197,7 @@
     - name: Download Athena JDBC Driver
       win_get_url:
         url: https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC_2.0.7/AthenaJDBC42_2.0.7.jar
-        dest: C:\Users\Public\Desktop\SQLWorkbench\AthenaJDBC42_2.0.7.jar
-
-    - name: Copy Athena JDBC Driver to C:\Program Files\Tableau\Drivers
-      win_copy:
-        src: C:\Users\Public\Desktop\SQLWorkbench\AthenaJDBC42_2.0.7.jar
-        dest: C:\Program Files\Tableau\Drivers    
+        dest: C:\Program Files\Tableau\Drivers
 
     - name: Download PostgreSQL JDBC Driver
       win_get_url:
