@@ -65,6 +65,7 @@
 
     - name: Download PsTools
       win_shell: |
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         $url = "https://download.sysinternals.com/files/PSTools.zip"
         $output = "C:\tmp\install\PSTools.zip"
         $wc = New-Object System.Net.WebClient
