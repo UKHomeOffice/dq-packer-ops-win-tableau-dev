@@ -197,13 +197,13 @@
 
     - name: Download Athena JDBC Driver
       win_get_url:
-        url: https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC_2.0.7/AthenaJDBC42_2.0.7.jar
+        url: https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC-2.0.23.1000/AthenaJDBC42.jar
         dest: C:\Program Files\Tableau\Drivers
 
     - name: Download PostgreSQL JDBC Driver
       win_get_url:
-        url: https://jdbc.postgresql.org/download/postgresql-42.2.5.jar
-        dest: C:\Users\Public\Desktop\SQLWorkbench\postgresql-42.2.5.jar
+        url: https://jdbc.postgresql.org/download/postgresql-42.2.14.jar
+        dest: C:\Users\Public\Desktop\SQLWorkbench\postgresql-42.2.14.jar
 
     - name: Download SQL Management studio
       win_shell: |
