@@ -116,12 +116,6 @@
       args:
         executable: powershell.exe
 
-    - name: Tableau Desktop - Create shortcut for all users (Public Desktop)
-      win_shortcut:
-        src: 'C:\Program Files\Tableau\Tableau 2020.4\bin\tableau.exe'
-        dest: 'C:\Users\Public\Desktop\Tableau2020.4.lnk'
-        icon: 'C:\Program Files\Tableau\Tableau 2020.4\bin\tableau.exe'
-
     - name: Unzip PSSlack Powershell module
       win_unzip:
         src: C:\tmp\install\PSSlack-master.zip
