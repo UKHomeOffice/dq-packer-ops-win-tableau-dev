@@ -105,12 +105,22 @@
       win_shell: aws s3 cp s3://dq-config-bucket/dq-ops-win/ C:\tmp\install\ --recursive
       args:
         executable: powershell.exe
-    - win_shell: aws s3 cp s3://dq-config-bucket/dq-tableau/gold-master/TableauDesktop-64bit-2020-GoldMaster.exe C:\tmp\install\
+
+    - name:  GET Tableau Desktop Install config files from S3
+         win_shell: aws s3 cp s3://dq-config-bucket/dq-tableau/gold-master/TableauDesktop-64bit-2020-GoldMaster.exe C:\tmp\install\
+         args:
+           executable: powershell.exe
 
     - name: Install Tableau Desktop
       win_shell: C:\tmp\install\TableauDesktop-64bit-2020-GoldMaster.exe /quiet /norestart ACCEPTEULA=1
       args:
         executable: powershell.exe
+
+    - name: Tableau Desktop - Create shortcut for all users (Public Desktop)
+      win_shortcut:
+        src: 'C:\Program Files\Tableau\Tableau 2020.4\bin\tableau.exe'
+        dest: 'C:\Users\Public\Desktop\Tableau2020.4.lnk'
+        icon: 'C:\Program Files\Tableau\Tableau 2020.4\bin\tableau.exe'
 
     - name: Unzip PSSlack Powershell module
       win_unzip:
