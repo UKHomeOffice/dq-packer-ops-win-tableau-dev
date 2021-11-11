@@ -49,6 +49,9 @@ $bastion = "TABLEAU-DEV+"
 
 Write-Host ">>>>>>>>>>> Host is $bastion <<<<<<<<<<<<<"
 
+Write-Host 'Adding bucket variable'
+[Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment/sqlworkbench", "Machine")
+[System.Environment]::SetEnvironmentVariable('S3_OPS_CONFIG_BUCKET','s3-dq-ops-config-$environment/sqlworkbench')
 
 Write-Host 'Join System to the DQ domain'
 $joiner_pw = (Get-SSMParameter -Name "AD_AdminPasswordd" -WithDecryption $True).Value
