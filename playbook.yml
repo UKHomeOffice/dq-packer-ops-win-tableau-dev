@@ -41,7 +41,7 @@
         [System.Net.ServicePointManager]::SecurityProtocol = 3072
         iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
         choco feature enable -n allowGlobalConfirmation
-        choco install chocolatey --version 0.10.15 --force
+        choco install chocolatey --version 0.11.3 --force
 
     - name: Install python2.7
       win_chocolatey:
@@ -266,11 +266,20 @@
 
     - name: Setup windows-update scheduled task
       win_shell: |
-        $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "C:\scripts/win-updates.ps1"
+        $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "C:\scripts\win-updates.ps1"
         $trigger = New-ScheduledTaskTrigger -Weekly -At 7:00am -WeeksInterval 2 -DaysOfWeek Monday
         $description = "Run Windows Security Updates every 2nd Monday"
         $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
         $task = Register-ScheduledTask -TaskName "Windows_Updates" -Trigger $trigger -Action $action -Description $description -Principal $principal
+        $task | Set-ScheduledTask
+
+    - name: Join system to domain
+      win_shell: |
+        $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "C:\scripts\joindomain.ps1"
+        $trigger = New-ScheduledTaskTrigger -AtStartup
+        $description = "Userdata script runs ar Start Up"
+        $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+        $task = Register-ScheduledTask -TaskName "Userdata" -Trigger $trigger -Action $action -Description $description -Principal $principal
         $task | Set-ScheduledTask
 
     - name: Add entries into Windows hosts file
