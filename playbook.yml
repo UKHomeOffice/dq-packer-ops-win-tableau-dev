@@ -242,6 +242,11 @@
         src: ./scripts/win-updates.ps1
         dest: C:\scripts\
 
+    - name: Copy useradta script
+      win_copy:
+        src: ./scripts/userdata.ps1
+        dest: C:\scripts\
+
     - name: Setup service monitor scheduled task
       win_shell: |
         $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass C:\scripts\monitor_win_services.ps1"
