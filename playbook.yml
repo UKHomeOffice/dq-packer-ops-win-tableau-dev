@@ -242,7 +242,7 @@
         src: ./scripts/win-updates.ps1
         dest: C:\scripts\
 
-    - name: Copy useradta script
+    - name: Copy userdata script
       win_copy:
         src: ./scripts/userdata.ps1
         dest: C:\scripts\
