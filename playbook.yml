@@ -208,6 +208,7 @@
 
     - name: Download SQL Management studio
       win_shell: |
+        [System.Net.ServicePointManager]::SecurityProtocol = 3072
         $url = "https://go.microsoft.com/fwlink/?linkid=864329"
         $output = "C:\tmp\install\SSMS-Setup-ENU.exe"
         $wc = New-Object System.Net.WebClient
