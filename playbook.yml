@@ -301,12 +301,12 @@
         insertafter: EOF
     - win_lineinfile:
         path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.14.111 tableau-carrierportal.notprod.dq.homeoffice.gov.uk www.carrierportal.notprod.dq.homeoffice.gov.uk'
+        line: '10.1.14.111 carrierportal.notprod.dq.homeoffice.gov.uk www.carrierportal.notprod.dq.homeoffice.gov.uk'
         state: present
         insertafter: EOF
     - win_lineinfile:
         path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.14.111 tableau-carrierportal.dq.homeoffice.gov.uk www.carrierportal.dq.homeoffice.gov.uk'
+        line: '10.1.14.111 carrierportal.dq.homeoffice.gov.uk www.carrierportal.dq.homeoffice.gov.uk'
         state: present
         insertafter: EOF
     - win_lineinfile:
