@@ -175,7 +175,7 @@
     - name: Install pgadmin4
       win_chocolatey:
         name: pgadmin4
-        version: 6.15
+        version: 6.17
         state: present
 
     - name: Install SQL-Workbench
