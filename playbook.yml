@@ -175,8 +175,7 @@
     - name: Install PGAdmin4
       win_chocolatey:
         name: pgadmin4
-        version: '6.13'
-        source: http://internal/odata/repo
+        source: https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v6.17/windows
         state: present
 
     - name: Install SQL-Workbench
