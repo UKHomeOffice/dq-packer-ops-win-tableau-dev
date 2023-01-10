@@ -172,11 +172,18 @@
         name: git
         state: present
 
+    - name: Download PGAdmin4 6.18
+      win_shell: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        $url = "https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v6.18/windows/pgadmin4-6.18-x64.exe"
+        $output = "C:\tmp\install\pgadmin4-6.18-x64.exe"
+        $wc = New-Object System.Net.WebClient
+        $wc.DownloadFile($url, $output)
+
     - name: Install PGAdmin4
-      win_chocolatey:
-        name: pgadmin4
-        version: '6.15'
-        state: present
+      win_shell: |
+        C:\tmp\install\pgadmin4-6.18-x64.exe /VERYSILENT /NORESTART /ALLUSERS
 
     - name: Install SQL-Workbench
       win_chocolatey:
