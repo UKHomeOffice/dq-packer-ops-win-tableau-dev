@@ -176,6 +176,7 @@
       win_chocolatey:
         name: pgadmin4
         version: '6.13'
+        source: http://internal/odata/repo
         state: present
 
     - name: Install SQL-Workbench
