@@ -14,17 +14,20 @@ platform:
 
 x-anchors:
   retrieve-deployment-aws-key: &retrieve-deployment-aws-key
+    - vault --version
     # Retrive vault secrets
     - vault read aws_dacc_dq/creds/drone > aws_creds.json
     - export LEASE_ID=$(cat aws_creds.json | grep lease_id | awk -F ' ' '{print $2}')
     # Update the token TTL to 10mins
     - vault lease renew -increment=3600 $${LEASE_ID}
-    # Get the AWS credentials
+    # Get the AWS credentials - for `packer-image`
     - echo "export AWS_ACCESS_KEY_ID=$(cat aws_creds.json | grep access_key | awk -F ' ' '{print $2}')" > set_aws_secrets.sh
-    - echo "export aws_id=$(cat aws_creds.json | grep access_key | awk -F ' ' '{print $2}')" >> set_aws_secrets.sh
     - echo "export AWS_SECRET_ACCESS_KEY=$(cat aws_creds.json | grep secret_key | awk -F ' ' '{print $2}')" >> set_aws_secrets.sh
-    - echo "export aws_key=$(cat aws_creds.json | grep secret_key | awk -F ' ' '{print $2}')" >> set_aws_secrets.sh
     - echo "export AWS_DEFAULT_REGION=eu-west-2" >> set_aws_secrets.sh
+    # Get the AWS credentials - for `copy-image`
+    - echo "export aws_id=$(cat aws_creds.json | grep access_key | awk -F ' ' '{print $2}')" >> set_aws_secrets.sh
+    - echo "export aws_key=$(cat aws_creds.json | grep secret_key | awk -F ' ' '{print $2}')" >> set_aws_secrets.sh
+    - echo "export region=eu-west-2" >> set_aws_secrets.sh
     # Since AWS is eventually consistent we need to sleep a little while so the AWS key is created and made available
     - sleep 20
 
@@ -34,6 +37,7 @@ steps:
   image: *packer-image
   commands:
   - export HOME=/home/packer
+  - packer --version
   - packer validate packer.json
 
 - name: inspect
@@ -41,6 +45,7 @@ steps:
   image: *packer-image
   commands:
   - export HOME=/home/packer
+  - packer --version
   - packer inspect packer.json
 
 - name: retrieve_aws_secrets_ci
@@ -63,6 +68,8 @@ steps:
   commands:
   - source ./set_aws_secrets.sh
   - export HOME=/home/packer
+  - export DRONE_BUILD_NUMBER=$${DRONE_BUILD_NUMBER}
+  - packer --version
   - packer build packer.json
   when:
     event:
@@ -88,7 +95,6 @@ steps:
   commands:
   - source ./set_aws_secrets.sh
   - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-tab-dev-*""
-  - export region=eu-west-2
   - export HOME=/home/packer
   - cd /home/packer
   - ./build.sh
@@ -118,7 +124,6 @@ steps:
   commands:
   - source ./set_aws_secrets.sh
   - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-tab-dev-*""
-  - export region=eu-west-2
   - export HOME=/home/packer
   - cd /home/packer
   - ./build.sh
