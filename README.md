@@ -25,8 +25,9 @@ Ansible playbook installing the following:
 - Tableau Desktop
 - DBeaver
 
-### `connection_plugins`
-- `packer.py` ssh based connections for powershell via packer
+### `connection_plugins` (Removed)
+Hashicorp now recommends _directly_ connecting Packer (with the WinRM Communicator) from the Control Node (Drone) to the Target Node being configured (Packer Builder EC2 Instance) rather than via the Communicator proxy provided by the connection plugin. <br>
+If the proxy is to be used the latest version of `packer.py` must be downloaded from https://github.com/ansible/ansible/blob/devel/lib/ansible/plugins/connection/ssh.py
 
 #### `scripts`
 - `disable-esc-and-iac.ps1` turn off annoying Windows pop-ups
