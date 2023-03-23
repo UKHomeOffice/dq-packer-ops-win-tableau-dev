@@ -20,20 +20,11 @@
       win_timezone:
         timezone: GMT Standard Time
 
-    - name: Create tmp directory
-      win_file:
-        path: C:\tmp\install
-        state: directory
-
-    - name: Create PSTools directory
-      win_file:
-        path: C:\PSTools
-        state: directory
-
-    - name: Create scripts directory
-      win_file:
-        path: C:\scripts
-        state: directory
+    - name: Create Directories
+      win_shell: |
+        mkdir C:\tmp\install
+        mkdir C:\PSTools
+        mkdir C:\scripts
 
     - name: Install Cholocatey
       win_shell: |
@@ -41,28 +32,25 @@
         [System.Net.ServicePointManager]::SecurityProtocol = 3072
         iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
         choco feature enable -n allowGlobalConfirmation
-        choco install chocolatey --version 0.11.3 --force
-
-    - name: Install python2.7
-      win_chocolatey:
-        name: python2
-        state: present
-
-    - name: Install python3
-      win_chocolatey:
-        name: python3
-        version: 3.7.5
-        state: present
-
-    - name: Install python packages
+        choco install chocolatey --version 1.1.0 --force
+      
+    - name: Chocolatey install various tools (non-python)
       win_shell: |
-        pip install boto3
-
-    - name: Install Google Chrome
-      win_chocolatey:
-        name: googlechrome
-        ignore_checksums: yes
-        state: present
+        choco install googlechrome
+        choco install pgadmin4
+        choco install putty
+        choco install dbeaver
+        choco install vscode
+        choco install notepadplusplus
+        choco install git
+        choco install sql-workbench --ignore-checksums
+  
+    - name: Chocolatey install various tools (python related)
+      win_shell: |
+        choco install python2
+        choco install python --version=3.9.0
+        C:\Python39\python.exe -m pip install --upgrade pip
+        py -m pip install boto3
 
     - name: Download PsTools
       win_shell: |
@@ -106,10 +94,10 @@
       win_shell: aws s3 cp s3://dq-config-bucket/dq-ops-win/ C:\tmp\install\ --recursive
       args:
         executable: powershell.exe
-    - win_shell: aws s3 cp s3://dq-config-bucket/dq-tableau/gold-master/TableauDesktop-64bit-2022-GoldMaster.exe C:\tmp\install\
+    - win_shell: aws s3 cp s3://dq-config-bucket/dq-tableau/gold-master/TableauDesktop-GoldMaster.exe C:\tmp\install\
 
     - name: Install Tableau Desktop
-      win_shell: C:\tmp\install\TableauDesktop-64bit-2022-GoldMaster.exe /quiet /norestart ACCEPTEULA=1
+      win_shell: C:\tmp\install\TableauDesktop-GoldMaster.exe /quiet /norestart ACCEPTEULA=1
       args:
         executable: powershell.exe
 
@@ -125,62 +113,53 @@
         arguments: '/q /norestart'
         state: present
 
-    - name: Download PGAdmin3 1.18.1
-      win_shell: |
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        $url = "https://ftp.postgresql.org/pub/pgadmin/pgadmin3/v1.22.2/win32/pgadmin3-1.22.2.zip"
-        $output = "C:\tmp\install\pgadmin3-1.18.1.zip"
-        $wc = New-Object System.Net.WebClient
-        $wc.DownloadFile($url, $output)
+    - name: Notpad++ - Create shortcut for all users (Public Desktop)
+      win_shortcut:
+        src: 'C:\Program Files\Notepad++\notepad++.exe'
+        dest: 'C:\Users\Public\Desktop\Notepad++.lnk'
+        icon: 'C:\Program Files\Notepad++\notepad++.exe'
 
-    - name: Unzip PGAdmin 1.18.1
-      win_unzip:
-        src: C:\tmp\install\pgadmin3-1.18.1.zip
-        dest: C:\tmp\install\pgadmin3-1.18.1
-        delete_archive: yes
+    - name: VSCode - Create shortcut for all users (Public Desktop)
+      win_shortcut:
+        src: 'C:\Program Files\Microsoft VS Code\Code.exe'
+        dest: 'C:\Users\Public\Desktop\Code.lnk'
+        icon: 'C:\Program Files\Microsoft VS Code\Code.exe'
 
-    - name: Install PGAdmin 1.18.1
-      win_package:
-        path: C:\tmp\install\pgadmin3-1.18.1\pgadmin3.msi
-        state: present
-
-    - name: Install GIT
-      win_chocolatey:
-        name: git
-        state: present
-
-    - name: Download PGAdmin4 6.18
-      win_shell: |
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        $url = "https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v6.18/windows/pgadmin4-6.18-x64.exe"
-        $output = "C:\tmp\install\pgadmin4-6.18-x64.exe"
-        $wc = New-Object System.Net.WebClient
-        $wc.DownloadFile($url, $output)
-
-    - name: Install PGAdmin4
-      win_shell: |
-        C:\tmp\install\pgadmin4-6.18-x64.exe /VERYSILENT /NORESTART /ALLUSERS
-
-    - name: Install SQL-Workbench
-      win_chocolatey:
-        name: sql-workbench
-        state: present
-        ignore_checksums: yes
-    - win_file:
+    - name: SQLWorkbench - create shortcut folder (Public Desktop)
+      win_file:
         path: C:\Users\Public\Desktop\SQLWorkbench
         state: directory
-    - win_shortcut:
+
+    - name: SQLWorkbench - create shortcut for all users (Public Desktop)
+      win_shortcut:
         src: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
         dest: 'C:\Users\Public\Desktop\SQLWorkbench\SQLWorkbench.lnk'
         args: -configDir=C:\Users\Public\.sqlworkbench
         icon: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
 
-    - name: Install DBeaver
-      win_chocolatey:
-        name: dbeaver
-        state: present
+    - name: pgAdmin4 - create shortcut folder (Public Desktop)
+      win_file:
+        path: C:\Users\Public\Desktop\pgAdmin4
+        state: directory
+
+    - name: pgAdmin4 - create shortcut for all users (Public Desktop)
+      win_shortcut:
+        src: 'C:\ProgramData\chocolatey\bin\pgAdmin4.exe'
+        dest: 'C:\Users\Public\Desktop\pgAdmin4\pgAdmin4.lnk'
+        args: -configDir=C:\Users\Public\.pgAdmin4
+        icon: 'C:\ProgramData\chocolatey\bin\pgAdmin4.exe'
+
+    - name: DBeaver - create shortcut folder (Public Desktop)
+      win_file:
+        path: C:\Users\Public\Desktop\DBeaver
+        state: directory
+
+    - name: DBeaver - create shortcut for all users (Public Desktop)
+      win_shortcut:
+        src: 'C:\ProgramData\chocolatey\bin\dbeaver.exe'
+        dest: 'C:\Users\Public\Desktop\DBeaver\dbeaver.lnk'
+        args: -configDir=C:\Users\Public\.dbeaver
+        icon: 'C:\ProgramData\chocolatey\bin\dbeaver.exe'
 
     - name: Download Athena JDBC Driver
       win_get_url:
