@@ -145,28 +145,6 @@
         path: C:\tmp\install\pgadmin3-1.18.1\pgadmin3.msi
         state: present
 
-    - name: Atom - Install
-      win_chocolatey:
-        name: atom
-        state: present
-
-    - name: Atom - Move install to Program Files
-      win_copy:
-        src: 'C:\Users\Administrator\AppData\Local\atom'
-        dest: 'C:\Program Files (x86)'
-        remote_src: True
-
-    - name: Atom - Create shortcut for all users (Public Desktop)
-      win_shortcut:
-        src: 'C:\Program Files (x86)\atom\atom.exe'
-        dest: 'C:\Users\Public\Desktop\Atom.lnk'
-        icon: 'C:\Program Files (x86)\atom\atom.exe'
-
-    - name: Atom - Remove OLD installation directory (cleanup)
-      win_file:
-        path: 'C:\Users\Administrator\AppData\Local\atom'
-        state: absent
-
     - name: Install GIT
       win_chocolatey:
         name: git
