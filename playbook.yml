@@ -69,7 +69,7 @@
     - name: Ensure that Python2.7 / Python3.7 and PsTools are present on the global system path
       win_path:
         elements:
-        - 'C:\Python37'
+        - 'C:\Python39'
         - 'C:\Python27'
         - 'C:\PSTools'
 
