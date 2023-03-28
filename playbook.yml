@@ -119,12 +119,6 @@
         dest: 'C:\Users\Public\Desktop\Notepad++.lnk'
         icon: 'C:\Program Files\Notepad++\notepad++.exe'
 
-    - name: VSCode - Create shortcut for all users (Public Desktop)
-      win_shortcut:
-        src: 'C:\Program Files\Microsoft VS Code\Code.exe'
-        dest: 'C:\Users\Public\Desktop\VSCode.lnk'
-        icon: 'C:\Program Files\Microsoft VS Code\Code.exe'
-
     - name: SQLWorkbench - create shortcut folder (Public Desktop)
       win_file:
         path: C:\Users\Public\Desktop\SQLWorkbench
@@ -137,17 +131,11 @@
         args: -configDir=C:\Users\Public\.sqlworkbench
         icon: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
 
-    - name: pgAdmin4 - create shortcut for all users (Public Desktop)
-      win_shortcut:
-        src: 'C:\Program Files\pgAdmin 4\v6\runtime\pgAdmin4.exe'
-        dest: 'C:\Users\Public\Desktop\pgAdmin4.lnk'
-        icon: 'C:\Program Files\pgAdmin 4\v6\pgAdmin4'
-
     - name: DBeaver - create shortcut for all users (Public Desktop)
       win_shortcut:
         src: 'C:\Program Files\DBeaver\dbeaver.exe'
         dest: 'C:\Users\Public\Desktop\DBeaver.lnk'
-        icon: 'C:\Program Files\DBeaver\configuration\org.eclipse.osgi\256\0\.cp\icons\dbeaver48'
+        icon: 'C:\Program Files\DBeaver\configuration\org.eclipse.osgi\256\0\.cp\icons\dbeaver256'
 
     - name: Download Athena JDBC Driver
       win_get_url:
