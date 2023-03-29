@@ -37,7 +37,6 @@
     - name: Chocolatey install various tools (non-python)
       win_shell: |
         choco install googlechrome
-        choco install pgadmin4 --version='6.18'
         choco install putty
         choco install dbeaver
         choco install vscode
@@ -135,7 +134,20 @@
       win_shortcut:
         src: 'C:\Program Files\DBeaver\dbeaver.exe'
         dest: 'C:\Users\Public\Desktop\DBeaver.lnk'
-        icon: 'C:\Program Files\DBeaver\configuration\org.eclipse.osgi\256\0\.cp\icons\dbeaver256'
+        icon: 'C:\Program Files\DBeaver\dbeaver.exe'
+
+    - name: Download PGAdmin4 6.18
+      win_shell: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        $url = "https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v6.18/windows/pgadmin4-6.18-x64.exe"
+        $output = "C:\tmp\install\pgadmin4-6.18-x64.exe"
+        $wc = New-Object System.Net.WebClient
+        $wc.DownloadFile($url, $output)
+
+    - name: Install PGAdmin4
+      win_shell: |
+        C:\tmp\install\pgadmin4-6.18-x64.exe /VERYSILENT /NORESTART /ALLUSERS
 
     - name: Download Athena JDBC Driver
       win_get_url:
