@@ -73,8 +73,8 @@
       "type": "powershell",
       "inline": [
       "Set-Location $env:programfiles/amazon/ec2launch",
-      "./ec2launch.exe reset -c -b",
-      "./ec2launch.exe sysprep -c -b"
+      "./ec2launch.exe reset --block",
+      "./ec2launch.exe sysprep --shutdown --block"
       ]
     }
   ]
