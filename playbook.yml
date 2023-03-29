@@ -18,7 +18,7 @@
 
     - name: Set timezone to 'Coordinated Universal Time' (UTC)
       win_timezone:
-        timezone: Coordinated Universal Time
+        timezone: UTC
 
     - name: Create Directories
       win_shell: |
