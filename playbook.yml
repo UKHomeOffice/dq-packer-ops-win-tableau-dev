@@ -16,9 +16,9 @@
         Add-WindowsFeature –Name GPMC
         Add-WindowsFeature -Name Telnet-Client
 
-    - name: Set timezone to 'Coordinated Universal Time' (UTC)
+    - name: Set timezone to 'Greenwich Standard Time' (UTC)
       win_timezone:
-        timezone: UTC
+        timezone: Greenwich Standard Time
 
     - name: Create Directories
       win_shell: |
@@ -149,10 +149,19 @@
       win_shell: |
         C:\tmp\install\pgadmin4-6.18-x64.exe /VERYSILENT /NORESTART /ALLUSERS
 
+    - name: PGAdmin - create shortcut for all users (Public Desktop)
+      win_shortcut:
+        src: 'C:\Program Files\pgAdmin 4\v6\runtime\pgAdmin4.exe'
+        dest: 'C:\Users\Public\Desktop\pgAdmin4.lnk'
+        icon: 'C:\Program Files\pgAdmin 4\v6\runtime\pgAdmin4.exe'
+
     - name: Download Athena JDBC Driver
       win_get_url:
         url: https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC-2.0.23.1000/AthenaJDBC42.jar
-        dest: C:\Users\Public\Desktop\SQLWorkbench
+        dest: {{item}}
+      with_items:
+        - C:\Users\Public\Desktop\SQLWorkbench
+        - C:\Program Files\Tableau\Drivers
 
     - name: Download PostgreSQL JDBC Driver
       win_get_url:
