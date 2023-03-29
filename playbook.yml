@@ -16,9 +16,9 @@
         Add-WindowsFeature –Name GPMC
         Add-WindowsFeature -Name Telnet-Client
 
-    - name: Set timezone to 'Greenwich Standard Time' (UTC)
+    - name: Set timezone to 'GMT Standard Time' (UTC)
       win_timezone:
-        timezone: Greenwich Standard Time
+        timezone: GMT Standard Time
 
     - name: Create Directories
       win_shell: |
