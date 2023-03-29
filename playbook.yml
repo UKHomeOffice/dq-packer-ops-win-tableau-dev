@@ -16,9 +16,9 @@
         Add-WindowsFeature –Name GPMC
         Add-WindowsFeature -Name Telnet-Client
 
-    - name: Set timezone to 'GMT Standard Time' (GMT)
+    - name: Set timezone to 'Coordinated Universal Time' (UTC)
       win_timezone:
-        timezone: GMT Standard Time
+        timezone: Coordinated Universal Time
 
     - name: Create Directories
       win_shell: |
@@ -37,7 +37,7 @@
     - name: Chocolatey install various tools (non-python)
       win_shell: |
         choco install googlechrome
-        choco install pgadmin4 --version='6.17'
+        choco install pgadmin4 --version='6.18'
         choco install putty
         choco install dbeaver
         choco install vscode
