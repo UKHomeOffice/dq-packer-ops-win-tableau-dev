@@ -1,20 +1,22 @@
 ---
 
-- name: Build Windows server.
+- name: Build Windows server
   hosts: all
   gather_facts: false
   tasks:
-    - name: Firewall rules
+    - name: Firewall Profile and Rules
       win_shell: |
         Set-NetFirewallProfile -Profile Domain -Enabled False
         Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
 
     - name: Install AD UAC, GPM
       win_shell: |
+        Install-PackageProvider -Name NuGet -RequiredVersion 2.8.5.201 -Force
         Import-Module ServerManager
         Add-WindowsFeature RSAT-ADDS-Tools
         Add-WindowsFeature –Name GPMC
         Add-WindowsFeature -Name Telnet-Client
+        Install-Module -Name PSSlack -RequiredVersion 1.0.2
 
     - name: Set timezone to 'GMT Standard Time' (GMT)
       win_shell: |
@@ -26,7 +28,7 @@
         mkdir C:\PSTools
         mkdir C:\scripts
 
-    - name: Install Cholocatey
+    - name: Install Chocolatey
       win_shell: |
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [System.Net.ServicePointManager]::SecurityProtocol = 3072
@@ -89,7 +91,7 @@
         path: C:\tmp\install\AWSCLI64.msi
         state: present
 
-    - name:  GET config files from S3
+    - name: GET config files from S3
       win_shell: aws s3 cp s3://dq-config-bucket/dq-ops-win/ C:\tmp\install\ --recursive
       args:
         executable: powershell.exe
