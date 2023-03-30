@@ -20,7 +20,7 @@
 
     - name: Set timezone to 'GMT Standard Time' (GMT)
       win_shell: |
-        Set-TimeZone -Id "GMT Standard Time"
+        tzutil /s "GMT Standard Time"
 
     - name: Create Directories
       win_shell: |
