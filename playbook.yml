@@ -24,7 +24,7 @@
         mkdir C:\PSTools
         mkdir C:\scripts
 
-     - name: Set timezone to 'GMT Standard Time' (GMT)
+    - name: Set timezone to 'GMT Standard Time' (GMT)
       win_shell: |
         tzutil /s "GMT Standard Time"       
 
