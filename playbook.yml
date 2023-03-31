@@ -18,15 +18,15 @@
         Add-WindowsFeature -Name Telnet-Client
         Install-Module -Name PSSlack -RequiredVersion 1.0.2
 
+    - name: Set timezone to 'GMT Standard Time' (GMT)
+      win_shell: |
+        Set-TimeZone -Name "GMT Standard Time"
+
     - name: Create Directories
       win_shell: |
         mkdir C:\tmp\install
         mkdir C:\PSTools
         mkdir C:\scripts
-
-    - name: Set timezone to 'GMT Standard Time' (GMT)
-      win_shell: |
-        tzutil /s "GMT Standard Time"       
 
     - name: Install Chocolatey
       win_shell: |
