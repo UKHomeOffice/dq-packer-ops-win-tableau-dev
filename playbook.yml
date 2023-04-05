@@ -225,7 +225,7 @@
 
     - name: Setup sqlworkbench scheduled task
       win_shell: |
-        $action = New-ScheduledTaskAction -Execute "C:\Python37\python.exe" -Argument "C:\scripts\pull-workbench-conf.py"
+        $action = New-ScheduledTaskAction -Execute "C:\Python39\python.exe" -Argument "C:\scripts\pull-workbench-conf.py"
         $trigger = New-ScheduledTaskTrigger -Daily -At (Get-Date)
         $description = "Run sqlworkbench config puller task every 30min"
         $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
@@ -265,16 +265,21 @@
         insertafter: EOF
     - win_lineinfile:
         path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.14.111 tableau-carrierportal.notprod.dq.homeoffice.gov.uk www.tableau-carrierportal.notprod.dq.homeoffice.gov.uk'
+        line: '10.1.14.111 carrierportal.notprod.dq.homeoffice.gov.uk www.carrierportal.notprod.dq.homeoffice.gov.uk'
         state: present
         insertafter: EOF
     - win_lineinfile:
         path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.14.111 tableau-carrierportal.dq.homeoffice.gov.uk www.tableau-carrierportal.dq.homeoffice.gov.uk'
+        line: '10.1.14.111 carrierportal.dq.homeoffice.gov.uk www.carrierportal.dq.homeoffice.gov.uk'
         state: present
         insertafter: EOF
     - win_lineinfile:
         path: C:\Windows\System32\drivers\etc\hosts
         line: '10.1.12.115 analysis-staging.dq.homeoffice.gov.uk www.analysis-staging.dq.homeoffice.gov.uk'
+        state: present
+        insertafter: EOF
+    - win_lineinfile:
+        path: C:\Windows\System32\drivers\etc\hosts
+        line: '10.1.14.115 carrierportal.staging.dq.homeoffice.gov.uk www.carrierportal.staging.dq.homeoffice.gov.uk'
         state: present
         insertafter: EOF
