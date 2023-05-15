@@ -1,95 +1,84 @@
----
-
 - name: Build Windows server
   hosts: all
   gather_facts: false
   tasks:
-    - name: Firewall Profile and Rules
-      win_shell: |
-        Set-NetFirewallProfile -Profile Domain -Enabled False
-        Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
-
-    - name: Install AD UAC, GPM
-      win_shell: |
-        Install-PackageProvider -Name NuGet -RequiredVersion 2.8.5.201 -Force
-        Import-Module ServerManager
-        Add-WindowsFeature RSAT-ADDS-Tools
-        Add-WindowsFeature –Name GPMC
-        Add-WindowsFeature -Name Telnet-Client
-        Install-Module -Name PSSlack -RequiredVersion 1.0.2
-
-    - name: Set timezone to 'GMT Standard Time' (GMT)
-      win_shell: |
-        Set-TimeZone -Name "GMT Standard Time"
-
-    - name: Create Directories
-      win_shell: |
-        mkdir C:\tmp\install
-        mkdir C:\PSTools
-        mkdir C:\scripts
-
-    - name: Install Chocolatey
-      win_shell: |
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-        [System.Net.ServicePointManager]::SecurityProtocol = 3072
-        iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-        choco feature enable -n allowGlobalConfirmation
-        choco install chocolatey --version 1.1.0 --force
-      
-    - name: Chocolatey install various tools (non-python)
-      win_shell: |
-        choco install googlechrome
-        choco install putty
-        choco install dbeaver
-        choco install vscode
-        choco install notepadplusplus
-        choco install git
-        choco install sql-workbench --ignore-checksums
-  
-    - name: Chocolatey install various tools (python related)
-      win_shell: |
-        choco install python2
-        choco install python --version=3.9.0
-        C:\Python39\python.exe -m pip install --upgrade pip
-        py -m pip install boto3
-
-    - name: Download PsTools
-      win_shell: |
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        $url = "https://download.sysinternals.com/files/PSTools.zip"
-        $output = "C:\tmp\install\PSTools.zip"
-        $wc = New-Object System.Net.WebClient
-        $wc.DownloadFile($url, $output)
-
-    - name: Unzip PsTools
-      win_unzip:
-        src: C:\tmp\install\PSTools.zip
-        dest: C:\PSTools\
-        delete_archive: yes
-
-    - name: Ensure that Python2.7 / Python3.9 and PsTools are present on the global system path
-      win_path:
-        elements:
-        - 'C:\Python39'
-        - 'C:\Python27'
-        - 'C:\PSTools'
-
-    - name: Install putty and plink
-      win_chocolatey:
-        name: putty
-        state: present
-
-    - name: Download AWSCLI
-      win_shell: |
-        $url = "https://s3.amazonaws.com/aws-cli/AWSCLI64.msi"
-        $output = "C:\tmp\install\AWSCLI64.msi"
-        $wc = New-Object System.Net.WebClient
-        $wc.DownloadFile($url, $output)
-
-    - name: AWS CLI install
-      win_package:
-        path: C:\tmp\install\AWSCLI64.msi
-        state: present
+#    - name: Firewall Profile and Rules
+#      win_shell: |
+#        Set-NetFirewallProfile -Profile Domain -Enabled False
+#        Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
+#
+#    - name: Install AD UAC, GPM
+#      win_shell: |
+#        Install-PackageProvider -Name NuGet -RequiredVersion 2.8.5.201 -Force
+#        Import-Module ServerManager
+#        Add-WindowsFeature RSAT-ADDS-Tools
+#        Add-WindowsFeature –Name GPMC
+#        Add-WindowsFeature -Name Telnet-Client
+#        Install-Module -Name PSSlack -RequiredVersion 1.0.2
+#
+#    - name: Create Directories
+#      win_shell: |
+#        mkdir C:\tmp\install
+#        mkdir C:\PSTools
+#        mkdir C:\scripts
+#
+#    - name: Install Chocolatey
+#      win_shell: |
+#        Set-ExecutionPolicy Bypass -Scope Process -Force
+#        [System.Net.ServicePointManager]::SecurityProtocol = 3072
+#        iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+#        choco feature enable -n allowGlobalConfirmation
+#        choco install chocolatey --version 1.1.0 --force
+#
+#    - name: Chocolatey install various tools (non-python)
+#      win_shell: |
+#        choco install googlechrome
+#        choco install putty
+#        choco install notepadplusplus
+#        choco install dbeaver
+#        choco install vscode
+#        choco install git
+#        choco install sql-workbench
+#
+#    - name: Chocolatey install various tools (python related)
+#      win_shell: |
+#        choco install python2
+#        choco install python --version=3.9.0
+#        C:\Python39\python.exe -m pip install --upgrade pip
+#        py -m pip install boto3
+#
+#    - name: Download PsTools
+#      win_shell: |
+#        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+#        $url = "https://download.sysinternals.com/files/PSTools.zip"
+#        $output = "C:\tmp\install\PSTools.zip"
+#        $wc = New-Object System.Net.WebClient
+#        $wc.DownloadFile($url, $output)
+#
+#    - name: Unzip PsTools
+#      win_unzip:
+#        src: C:\tmp\install\PSTools.zip
+#        dest: C:\PSTools\
+#        delete_archive: yes
+#
+#    - name: Ensure that Python2.7 / Python3.9 and PsTools are present on the global system path
+#      win_path:
+#        elements:
+#        - 'C:\Python39'
+#        - 'C:\Python27'
+#        - 'C:\PSTools'
+#
+#    - name: Download AWSCLI
+#      win_shell: |
+#        $url = "https://s3.amazonaws.com/aws-cli/AWSCLI64.msi"
+#        $output = "C:\tmp\install\AWSCLI64.msi"
+#        $wc = New-Object System.Net.WebClient
+#        $wc.DownloadFile($url, $output)
+#
+#    - name: AWS CLI install
+#      win_package:
+#        path: C:\tmp\install\AWSCLI64.msi
+#        state: present
 
     - name: GET config files from S3
       win_shell: aws s3 cp s3://dq-config-bucket/dq-ops-win/ C:\tmp\install\ --recursive
@@ -102,184 +91,206 @@
       args:
         executable: powershell.exe
 
-    - name: Unzip PSSlack Powershell module
-      win_unzip:
-        src: C:\tmp\install\PSSlack-master.zip
-        dest: C:\scripts\
-
-    - name: Install AWS Toolkit for Powershell
-      win_package:
-        path: http://sdk-for-net.amazonwebservices.com/latest/AWSToolsAndSDKForNet.msi
-        product_id: '{F3855CA6-073C-48B5-914A-AFD76AF2948B}'
-        arguments: '/q /norestart'
-        state: present
-
-    - name: Notpad++ - Create shortcut for all users (Public Desktop)
-      win_shortcut:
-        src: 'C:\Program Files\Notepad++\notepad++.exe'
-        dest: 'C:\Users\Public\Desktop\Notepad++.lnk'
-        icon: 'C:\Program Files\Notepad++\notepad++.exe'
-
-    - name: SQLWorkbench - create shortcut folder (Public Desktop)
-      win_file:
-        path: C:\Users\Public\Desktop\SQLWorkbench
-        state: directory
-
-    - name: SQLWorkbench - create shortcut for all users (Public Desktop)
-      win_shortcut:
-        src: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
-        dest: 'C:\Users\Public\Desktop\SQLWorkbench\SQLWorkbench.lnk'
-        args: -configDir=C:\Users\Public\.sqlworkbench
-        icon: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
-
-    - name: DBeaver - create shortcut for all users (Public Desktop)
-      win_shortcut:
-        src: 'C:\Program Files\DBeaver\dbeaver.exe'
-        dest: 'C:\Users\Public\Desktop\DBeaver.lnk'
-        icon: 'C:\Program Files\DBeaver\dbeaver.exe'
-
-    - name: Download PGAdmin4 6.18
-      win_shell: |
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        $url = "https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v6.18/windows/pgadmin4-6.18-x64.exe"
-        $output = "C:\tmp\install\pgadmin4-6.18-x64.exe"
-        $wc = New-Object System.Net.WebClient
-        $wc.DownloadFile($url, $output)
-
-    - name: Install PGAdmin4
-      win_shell: |
-        C:\tmp\install\pgadmin4-6.18-x64.exe /VERYSILENT /NORESTART /ALLUSERS
-
-    - name: PGAdmin - create shortcut for all users (Public Desktop)
-      win_shortcut:
-        src: 'C:\Program Files\pgAdmin 4\v6\runtime\pgAdmin4.exe'
-        dest: 'C:\Users\Public\Desktop\pgAdmin4.lnk'
-        icon: 'C:\Program Files\pgAdmin 4\v6\runtime\pgAdmin4.exe'
-
-    - name: Download Athena JDBC Driver
-      win_get_url:
-        url: https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC-2.0.23.1000/AthenaJDBC42.jar
-        dest: '{{item}}'
-      with_items:
-        - C:\Users\Public\Desktop\SQLWorkbench
-        - C:\Program Files\Tableau\Drivers
-
-    - name: Download PostgreSQL JDBC Driver
-      win_get_url:
-        url: https://jdbc.postgresql.org/download/postgresql-42.2.14.jar
-        dest: C:\Users\Public\Desktop\SQLWorkbench
-
-    - name: Download SQL Management studio
-      win_shell: |
-        [System.Net.ServicePointManager]::SecurityProtocol = 3072
-        $url = "https://go.microsoft.com/fwlink/?linkid=864329"
-        $output = "C:\tmp\install\SSMS-Setup-ENU.exe"
-        $wc = New-Object System.Net.WebClient
-        $wc.DownloadFile($url, $output)
-
-    - name: Install SQL Management studio
-      win_shell: |
-        C:\tmp\install\SSMS-Setup-ENU.exe /install /quiet /norestart
-
-    - name: Unzip Cloudwatch config file
-      win_unzip:
-        src: C:\tmp\install\AWS.EC2.Windows.Cloudwatch.json.zip
-        dest: C:\Program Files\Amazon\SSM\Plugins\awsCloudWatch
-        delete_archive: yes
-
-    - name: Save CW config by restarting the Service
-      win_shell: |
-        Restart-Service AmazonSSMAgent
-
-    - name: Copy stopped service monitoring PS script
-      win_copy:
-        src: ./scripts/monitor_stopped_win_services.ps1
-        dest: C:\scripts\
-
-    - name: Copy sqlworkbench config script
-      win_copy:
-        src: ./scripts/pull-workbench-conf.py
-        dest: C:\scripts\
-
-    - name: Copy windows-update script
-      win_copy:
-        src: ./scripts/win-updates.ps1
-        dest: C:\scripts\
-
+#    - name: Unzip PSSlack Powershell module
+#      win_unzip:
+#        src: C:\tmp\install\PSSlack-master.zip
+#        dest: C:\scripts\
+#
+#    - name: Install AWS Toolkit for Powershell
+#      win_package:
+#        path: http://sdk-for-net.amazonwebservices.com/latest/AWSToolsAndSDKForNet.msi
+#        product_id: '{F3855CA6-073C-48B5-914A-AFD76AF2948B}'
+#        arguments: '/q /norestart'
+#        state: present
+#
+#    - name: Notepad++ - Create shortcut for all users (Public Desktop)
+#      win_shortcut:
+#        src: 'C:\Program Files\Notepad++\notepad++.exe'
+#        dest: 'C:\Users\Public\Desktop\Notepad++.lnk'
+#        icon: 'C:\Program Files\Notepad++\notepad++.exe'
+#
+#    - name: SQLWorkbench - create shortcut folder (Public Desktop)
+#      win_file:
+#        path: C:\Users\Public\Desktop\SQLWorkbench
+#        state: directory
+#
+#    - name: SQLWorkbench - create shortcut for all users (Public Desktop)
+#      win_shortcut:
+#        src: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
+#        dest: 'C:\Users\Public\Desktop\SQLWorkbench\SQLWorkbench.lnk'
+#        args: -configDir=C:\Users\Public\.sqlworkbench
+#        icon: 'C:\ProgramData\chocolatey\bin\SQLWorkbench.exe'
+#
+#    - name: DBeaver - create shortcut for all users (Public Desktop)
+#      win_shortcut:
+#        src: 'C:\Program Files\DBeaver\dbeaver.exe'
+#        dest: 'C:\Users\Public\Desktop\DBeaver.lnk'
+#        icon: 'C:\Program Files\DBeaver\dbeaver.exe'
+#
+#    - name: Download PGAdmin4 6.21
+#      win_shell: |
+#        Set-ExecutionPolicy Bypass -Scope Process -Force
+#        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+#        $url = "https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v6.21/windows/pgadmin4-6.21-x64.exe"
+#        $output = "C:\tmp\install\pgadmin4-6.21-x64.exe"
+#        $wc = New-Object System.Net.WebClient
+#        $wc.DownloadFile($url, $output)
+#
+#    - name: Install PGAdmin4 6.21
+#      win_shell: |
+#        C:\tmp\install\pgadmin4-6.21-x64.exe /VERYSILENT /NORESTART /ALLUSERS
+#
+#    - name: PGAdmin4 v6 - create shortcut for all users (Public Desktop)
+#      win_shortcut:
+#        src: 'C:\Program Files\pgAdmin 4\v6\runtime\pgAdmin4.exe'
+#        dest: 'C:\Users\Public\Desktop\pgAdmin4.lnk'
+#        icon: 'C:\Program Files\pgAdmin 4\v6\runtime\pgAdmin4.exe'
+#
+#    - name: Download Athena JDBC Driver
+#      win_get_url:
+#        url: https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC-2.0.36.1000/AthenaJDBC42-2.0.36.1000.jar
+#        dest: C:\Users\Public\Desktop\SQLWorkbench\AthenaJDBC42.jar
+#
+#    - name: Download PostgreSQL JDBC Driver
+#      win_get_url:
+#        url: https://jdbc.postgresql.org/download/postgresql-42.2.27.jar
+#        dest: C:\Users\Public\Desktop\SQLWorkbench\postgresql-42.jar
+#
+#    - name: Download SQL Management studio
+#      win_shell: |
+#        [System.Net.ServicePointManager]::SecurityProtocol = 3072
+#        $url = "https://go.microsoft.com/fwlink/?linkid=864329"
+#        $output = "C:\tmp\install\SSMS-Setup-ENU.exe"
+#        $wc = New-Object System.Net.WebClient
+#        $wc.DownloadFile($url, $output)
+#
+#    - name: Install SQL Management studio
+#      win_shell: |
+#        C:\tmp\install\SSMS-Setup-ENU.exe /install /quiet /norestart
+#
+#    - name: Unzip Cloudwatch config file
+#      win_unzip:
+#        src: C:\tmp\install\AWS.EC2.Windows.Cloudwatch.json.zip
+#        dest: C:\Program Files\Amazon\SSM\Plugins\awsCloudWatch
+#        delete_archive: yes
+#
+#   # # - name: Save CW config by restarting the Service
+#   # #   win_shell: |
+#   # #     Restart-Service AmazonSSMAgent
+#
+#    - name: Copy stopped service monitoring PS script
+#      win_copy:
+#        src: ./scripts/monitor_stopped_win_services.ps1
+#        dest: C:\scripts\
+#
+#    - name: Copy SQLWorkbench config script
+#      win_copy:
+#        src: ./scripts/pull-workbench-conf.py
+#        dest: C:\scripts\
+#
+#    - name: Copy Windows-update script
+#      win_copy:
+#        src: ./scripts/win-updates.ps1
+#        dest: C:\scripts\
+#
     - name: Copy userdata script
       win_copy:
         src: ./scripts/userdata.ps1
         dest: C:\scripts\
-
-    - name: Setup service monitor scheduled task
-      win_shell: |
-        $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass C:\scripts\monitor_win_services.ps1"
-        $trigger = New-ScheduledTaskTrigger -Daily -At (Get-Date)
-        $description = "Run Stopped service monitor every minute forever."
-        $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-        $task = Register-ScheduledTask -TaskName "Stopped_Automatic_Services" -Trigger $trigger -Action $action -Description $description -Principal $principal
-        $task.Triggers.Repetition.Duration = "P1D"
-        $task.Triggers.Repetition.Interval = "PT1M"
-        $task | Set-ScheduledTask
-
-    - name: Setup sqlworkbench scheduled task
-      win_shell: |
-        $action = New-ScheduledTaskAction -Execute "C:\Python39\python.exe" -Argument "C:\scripts\pull-workbench-conf.py"
-        $trigger = New-ScheduledTaskTrigger -Daily -At (Get-Date)
-        $description = "Run sqlworkbench config puller task every 30min"
-        $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-        $task = Register-ScheduledTask -TaskName "Sqlworkbench_Config_Puller" -Trigger $trigger -Action $action -Description $description -Principal $principal
-        $task.Triggers.Repetition.Duration = "P1D"
-        $task.Triggers.Repetition.Interval = "PT30M"
-        $task | Set-ScheduledTask
-
-    - name: Setup windows-update scheduled task
-      win_shell: |
-        $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "C:\scripts\win-updates.ps1"
-        $trigger = New-ScheduledTaskTrigger -Weekly -At 7:00am -WeeksInterval 2 -DaysOfWeek Monday
-        $description = "Run Windows Security Updates every 2nd Monday"
-        $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-        $task = Register-ScheduledTask -TaskName "Windows_Updates" -Trigger $trigger -Action $action -Description $description -Principal $principal
-        $task | Set-ScheduledTask
-
-    - name: Execute userdata script
-      win_shell: |
-        $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "C:\scripts\userdata.ps1"
-        $trigger = New-ScheduledTaskTrigger -AtStartup
-        $description = "Userdata script runs ar Start Up"
-        $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-        $task = Register-ScheduledTask -TaskName "Userdata" -Trigger $trigger -Action $action -Description $description -Principal $principal
-        $task | Set-ScheduledTask
-
-    - name: Add entries into Windows hosts file
-      win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.12.111 analysis.notprod.dq.homeoffice.gov.uk www.analysis.notprod.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
-    - win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.12.111 analysis.dq.homeoffice.gov.uk www.analysis.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
-    - win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.14.111 carrierportal.notprod.dq.homeoffice.gov.uk www.carrierportal.notprod.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
-    - win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.14.111 carrierportal.dq.homeoffice.gov.uk www.carrierportal.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
-    - win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.12.115 analysis-staging.dq.homeoffice.gov.uk www.analysis-staging.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
-    - win_lineinfile:
-        path: C:\Windows\System32\drivers\etc\hosts
-        line: '10.1.14.115 carrierportal.staging.dq.homeoffice.gov.uk www.carrierportal.staging.dq.homeoffice.gov.uk'
-        state: present
-        insertafter: EOF
+#
+#    - name: Copy RDP Shortcut files
+#      win_copy:
+#        src: ./misc
+#        dest: C:\
+#
+#    - name: Execute script InitialiseInstance.ps1
+#      win_shell: |
+#        $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1 –Schedule"
+#        $trigger = New-ScheduledTaskTrigger -AtStartup
+#        $description = "InitialiseInstance script runs at Start Up"
+#        $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+#        $task = Register-ScheduledTask -TaskName "InitialiseInstance" -Trigger $trigger -Action $action -Description $description -Principal $principal
+#        $task | Set-ScheduledTask
+#
+#    # - name: Execute script SysprepInstance.ps1
+#    #   win_shell: |
+#    #     $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\SysprepInstance.ps1 -NoShutdown"
+#    #     $trigger = New-ScheduledTaskTrigger -AtStartup
+#    #     $description = "SysprepInstance script runs ar Start Up"
+#    #     $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+#    #     $task = Register-ScheduledTask -TaskName "SysprepInstance" -Trigger $trigger -Action $action -Description $description -Principal $principal
+#    #     $task | Set-ScheduledTask
+#
+#    - name: Setup service monitor scheduled task
+#      win_shell: |
+#        $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass C:\scripts\monitor_win_services.ps1"
+#        $trigger = New-ScheduledTaskTrigger -Daily -At (Get-Date)
+#        $description = "Run Stopped service monitor every minute forever."
+#        $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+#        $task = Register-ScheduledTask -TaskName "Stopped_Automatic_Services" -Trigger $trigger -Action $action -Description $description -Principal $principal
+#        $task.Triggers.Repetition.Duration = "P1D"
+#        $task.Triggers.Repetition.Interval = "PT1M"
+#        $task | Set-ScheduledTask
+#
+#    - name: Setup SQLWorkbench scheduled task
+#      win_shell: |
+#        $action = New-ScheduledTaskAction -Execute "C:\Python39\python.exe" -Argument "C:\scripts\pull-workbench-conf.py"
+#        $trigger = New-ScheduledTaskTrigger -Daily -At (Get-Date)
+#        $description = "Run SQLWorkbench config puller task every 30min"
+#        $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+#        $task = Register-ScheduledTask -TaskName "Sqlworkbench_Config_Puller" -Trigger $trigger -Action $action -Description $description -Principal $principal
+#        $task.Triggers.Repetition.Duration = "P1D"
+#        $task.Triggers.Repetition.Interval = "PT30M"
+#        $task | Set-ScheduledTask
+#
+#    - name: Setup Windows-update scheduled task
+#      win_shell: |
+#        $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "C:\scripts\win-updates.ps1"
+#        $trigger = New-ScheduledTaskTrigger -Weekly -At 7:00am -WeeksInterval 2 -DaysOfWeek Monday
+#        $description = "Run Windows Security Updates every 2nd Monday"
+#        $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+#        $task = Register-ScheduledTask -TaskName "Windows_Updates" -Trigger $trigger -Action $action -Description $description -Principal $principal
+#        $task | Set-ScheduledTask
+#
+#    - name: Setup userdata script scheduled task to run at startup (not sure all of this should run _every time_ it starts up)
+#      win_shell: |
+#        $name = "Userdata"
+#        $description = "Userdata script runs at Start Up"
+#        $action = New-ScheduledTaskAction -Execute "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Argument "C:\scripts\userdata.ps1"
+#        $trigger = New-ScheduledTaskTrigger -AtStartup
+#        $principal = New-ScheduledTaskPrincipal -UserID "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+#        $task = Register-ScheduledTask -TaskName $name -Trigger $trigger -Action $action -Description $description -Principal $principal
+#        $task | Set-ScheduledTask
+#
+#    - name: Add entries into Windows hosts file
+#      # Using multiple win_lineinfile sections because blockinfile is unavailable on Windows
+#      win_lineinfile:
+#        path: C:\Windows\System32\drivers\etc\hosts
+#        line: '10.1.12.111 analysis.notprod.dq.homeoffice.gov.uk www.analysis.notprod.dq.homeoffice.gov.uk'
+#        state: present
+#        insertafter: EOF
+#    - win_lineinfile:
+#        path: C:\Windows\System32\drivers\etc\hosts
+#        line: '10.1.12.111 analysis.dq.homeoffice.gov.uk www.analysis.dq.homeoffice.gov.uk'
+#        state: present
+#        insertafter: EOF
+#    - win_lineinfile:
+#        path: C:\Windows\System32\drivers\etc\hosts
+#        line: '10.1.14.111 carrierportal.notprod.dq.homeoffice.gov.uk www.carrierportal.notprod.dq.homeoffice.gov.uk'
+#        state: present
+#        insertafter: EOF
+#    - win_lineinfile:
+#        path: C:\Windows\System32\drivers\etc\hosts
+#        line: '10.1.14.111 carrierportal.dq.homeoffice.gov.uk www.carrierportal.dq.homeoffice.gov.uk'
+#        state: present
+#        insertafter: EOF
+#    - win_lineinfile:
+#        path: C:\Windows\System32\drivers\etc\hosts
+#        line: '10.1.12.115 analysis-staging.dq.homeoffice.gov.uk www.analysis-staging.dq.homeoffice.gov.uk'
+#        state: present
+#        insertafter: EOF
+#    - win_lineinfile:
+#        path: C:\Windows\System32\drivers\etc\hosts
+#        line: '10.1.14.115 carrierportal.staging.dq.homeoffice.gov.uk www.carrierportal.staging.dq.homeoffice.gov.uk'
+#        state: present
+#        insertafter: EOF

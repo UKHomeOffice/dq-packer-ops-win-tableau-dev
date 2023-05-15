@@ -15,10 +15,10 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "cloudimg-windows-server2019*"
+          "name": "dq-ops-win-nineteen-bastion-254"
         },
         "owners": [
-          "679593333241"
+          "093401982388"
         ],
         "most_recent": true
       },
@@ -73,8 +73,8 @@
       "type": "powershell",
       "inline": [
       "Set-Location $env:programfiles/amazon/ec2launch",
-      "./ec2launch.exe reset -c -b",
-      "./ec2launch.exe sysprep sysprep -c -b"
+      "./ec2launch.exe reset --clean --block",
+      "./ec2launch.exe sysprep --clean --block"
       ]
     }
   ]
