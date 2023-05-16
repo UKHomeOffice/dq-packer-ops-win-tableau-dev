@@ -83,19 +83,23 @@ Write-Host "The current hostname is $current_hostname"
 if ($environment -eq "NotProd" -or $environment -eq "Prod")
 {
     Write-Host "Deciphering the desired name of the host from the host part of the IP Address $host_part !"
-    if($host_part -eq "6.10")
+    if (-not $host_part)
+    {
+        $new_hostname = "UNKNOWN"
+    }
+    elseif ($host_part -eq "6.10")
     {
         $new_hostname = "TAB-DEP-1"
     }
-    elseif($host_part -eq "6.11")
+    elseif ($host_part -eq "6.11")
     {
         $new_hostname = "TAB-DEP-2"
     }
-    elseif($host_part -eq "6.12")
+    elseif ($host_part -eq "6.12")
     {
         $new_hostname = "TAB-DEP-3"
     }
-    elseif($host_part -eq "6.15")
+    elseif ($host_part -eq "6.15")
     {
         $new_hostname = "TAB-DEP-2019"
     }
@@ -104,6 +108,10 @@ if ($environment -eq "NotProd" -or $environment -eq "Prod")
         $new_hostname = "TAB-DEP-$octets[3]"
     }
     Write-Host ">>>>>>>>>>> Host should be named $new_hostname <<<<<<<<<<<<<"
+}
+else
+{
+    Write-Host "As the environment is $environment, not trying to decipher the desired name of the host"
 }
 
 
@@ -114,7 +122,9 @@ Write-Host 'Adding bucket variable'
 # Rename Computer and Join to Domain
 # If the host has not already joined the domain and it is a genuine environment
 if ($is_part_of_domain -eq $false -and $is_part_of_valid -eq $true -and
-        ($environment -eq "NotProd" -or $environment -eq "Prod"))
+        ($environment  -eq "NotProd" -or $environment -eq "Prod") -and
+        ($new_hostname -ne "UNKNOWN")
+    )
 {
     Write-Host 'Join System to the DQ domain'
     $joiner_usr = (Get-SSMParameter -Name "AD_Domain_Joiner_Username" -WithDecryption $False).Value
@@ -130,13 +140,17 @@ if ($is_part_of_domain -eq $false -and $is_part_of_valid -eq $true -and
         Rename-Computer -NewName $new_hostname
         sleep 20
         Write-Host "Joining host to Domain $domain - with rename option"
-        Add-Computer -DomainName $domain -Credential $credential -Options JoinWithNewName -NewName $new_hostname -Restart -Force
+        Add-Computer -DomainName $domain -Credential $credential -Options JoinWithNewName,AccountCreate -NewName $new_hostname -Restart -Force
     }
     else
     {
         Write-Host "Joining host to Domain $domain - without rename option"
         Add-Computer -DomainName $domain -Credential $credential -Restart -Force
     }
+}
+else
+{
+    Write-Host "Not trying to join domain"
 }
 
 Stop-Transcript
