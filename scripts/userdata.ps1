@@ -112,7 +112,9 @@ Write-Host 'Adding bucket variable'
 [System.Environment]::SetEnvironmentVariable('S3_OPS_CONFIG_BUCKET','s3-dq-ops-config-$environment/sqlworkbench')
 
 # Rename Computer and Join to Domain
-if ($is_part_of_domain -eq $false -and $is_part_of_valid -eq $true)
+# If the host has not already joined the domain and it is a genuine environment
+if ($is_part_of_domain -eq $false -and $is_part_of_valid -eq $true -and
+        ($environment -eq "NotProd" -or $environment -eq "Prod"))
 {
     Write-Host 'Join System to the DQ domain'
     $joiner_usr = (Get-SSMParameter -Name "AD_Domain_Joiner_Username" -WithDecryption $False).Value
