@@ -126,9 +126,11 @@ if ($is_part_of_domain -eq $false -and $is_part_of_valid -eq $true -and
         ($new_hostname -ne "UNKNOWN")
     )
 {
-    Write-Host 'Join System to the DQ domain'
+    Write-Host 'Join Computer to the DQ domain'
+    Write-Host "Retrieving joiner username and password"
     $joiner_usr = (Get-SSMParameter -Name "AD_Domain_Joiner_Username" -WithDecryption $False).Value
     $joiner_pwd = (Get-SSMParameter -Name "AD_Domain_Joiner_Password" -WithDecryption $True).Value
+    Write-Host "Retrieved joiner username ($joiner_usr) and password"
     $domain = 'dq.homeoffice.gov.uk'
     $username = $joiner_usr + "@" + $domain
     $password = ConvertTo-SecureString $joiner_pwd -AsPlainText -Force
@@ -139,12 +141,13 @@ if ($is_part_of_domain -eq $false -and $is_part_of_valid -eq $true -and
         Write-Host "Renaming host from $current_hostname to $new_hostname"
         Rename-Computer -NewName $new_hostname
         sleep 20
-        Write-Host "Joining host to Domain $domain - with rename option"
-        Add-Computer -DomainName $domain -Credential $credential -Options JoinWithNewName,AccountCreate -NewName $new_hostname -Restart -Force
+        Write-Host "Joining host to Domain $domain using user $username - with rename option"
+#        Add-Computer -DomainName $domain -Credential $credential -Options JoinWithNewName,AccountCreate -NewName $new_hostname -Restart -Force
+        Add-Computer -DomainName $domain -Credential $credential -Options JoinWithNewName -NewName $new_hostname -Restart -Force
     }
     else
     {
-        Write-Host "Joining host to Domain $domain - without rename option"
+        Write-Host "Joining host to Domain $domain using user $username - without rename option"
         Add-Computer -DomainName $domain -Credential $credential -Restart -Force
     }
 }
