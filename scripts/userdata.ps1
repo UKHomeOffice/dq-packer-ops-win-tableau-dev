@@ -115,9 +115,43 @@ else
 }
 
 
-Write-Host 'Adding bucket variable'
-[Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment/sqlworkbench", "Machine")
-[System.Environment]::SetEnvironmentVariable('S3_OPS_CONFIG_BUCKET','s3-dq-ops-config-$environment/sqlworkbench')
+Write-Host 'Environment Variables'
+$env_flag_file = "\scripts\env.txt"
+if (-not (Test-Path $env_flag_file))
+{
+    Write-Host 'Adding config bucket environment variable'
+    [Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment/sqlworkbench", "Machine")
+    [System.Environment]::SetEnvironmentVariable('S3_OPS_CONFIG_BUCKET', 's3-dq-ops-config-$environment/sqlworkbench')
+    New-Item -Path $env_flag_file -ItemType "file" -Value "Environment variables added. Remove this file to re-add."
+}
+else
+{
+    Write-Host 'Environment variables already'
+}
+
+
+Write-Host 'Region and Locale'
+$reg_flag_file = "\scripts\reg.txt"
+if (-not (Test-Path $reg_flag_file))
+{
+    Write-Host 'Setting home location to the United Kingdom'
+    Set-WinHomeLocation 242
+
+    Write-Host 'Setting system local'
+    Set-WinSystemLocale en-GB
+
+    Write-Host 'Setting regional format (date/time etc.) to English (United Kingdon) - this applies to all users'
+    Set-Culture en-GB
+
+    Write-Host 'Setting TimeZone to GMT'
+    Set-TimeZone "GMT Standard Time"
+    New-Item -Path $reg_flag_file -ItemType "file" -Value "Region and Locale set. Remove this file to re-add."
+}
+else
+{
+    Write-Host 'Region and Locale already set'
+}
+
 
 # Rename Computer and Join to Domain
 # If the host has not already joined the domain and it is a genuine environment
@@ -126,9 +160,11 @@ if ($is_part_of_domain -eq $false -and $is_part_of_valid -eq $true -and
         ($new_hostname -ne "UNKNOWN")
     )
 {
-    Write-Host 'Join System to the DQ domain'
+    Write-Host 'Join Computer to the DQ domain'
+    Write-Host "Retrieving joiner username and password"
     $joiner_usr = (Get-SSMParameter -Name "AD_Domain_Joiner_Username" -WithDecryption $False).Value
     $joiner_pwd = (Get-SSMParameter -Name "AD_Domain_Joiner_Password" -WithDecryption $True).Value
+    Write-Host "Retrieved joiner username ($joiner_usr) and password"
     $domain = 'dq.homeoffice.gov.uk'
     $username = $joiner_usr + "@" + $domain
     $password = ConvertTo-SecureString $joiner_pwd -AsPlainText -Force
@@ -139,18 +175,19 @@ if ($is_part_of_domain -eq $false -and $is_part_of_valid -eq $true -and
         Write-Host "Renaming host from $current_hostname to $new_hostname"
         Rename-Computer -NewName $new_hostname
         sleep 20
-        Write-Host "Joining host to Domain $domain - with rename option"
-        Add-Computer -DomainName $domain -Credential $credential -Options JoinWithNewName,AccountCreate -NewName $new_hostname -Restart -Force
+        Write-Host "Joining host to Domain $domain using user $username - with rename option"
+#        Add-Computer -DomainName $domain -Credential $credential -Options JoinWithNewName,AccountCreate -NewName $new_hostname -Restart -Force
+        Add-Computer -DomainName $domain -Credential $credential -Options JoinWithNewName -NewName $new_hostname -Restart -Force
     }
     else
     {
-        Write-Host "Joining host to Domain $domain - without rename option"
+        Write-Host "Joining host to Domain $domain using user $username - without rename option"
         Add-Computer -DomainName $domain -Credential $credential -Restart -Force
     }
 }
 else
 {
-    Write-Host "Not trying to join domain"
+    Write-Host "Host already joined to domain"
 }
 
 Stop-Transcript
