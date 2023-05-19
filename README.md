@@ -1,29 +1,19 @@
 # dq-packer-ops-win-tableau-dev
 
-This AMI is used to create a Tableau Development server and has got various tools installed required to manage Tableau and related services.
+This AMI is used to create Tableau Deployment servers.
+It is built on top of the Windows Bastion AMI with extra tools installed for Tableau.
 
 ## Features
 
 ### `packer.json`
 
-This file contains a wrap up for Ansible script to be run inside a Windows 2012 R2 server
+This file contains a wrap up for Ansible script to be run inside a Windows Server 2019 
 
 ### `playbook.yml`
 
 Ansible playbook installing the following:
-- PSTools
-- Chocolatey package manager
-- Python2.7
-- Python3.9
-- Google Chrome
-- Putty
-- VSCode
-- AWS CLI
-- AWS Toolkit for Powershell
-- PGAdmin 4
-- Microsoft SQL Management Studio
 - Tableau Desktop
-- DBeaver
+- userdata script
 
 ### `connection_plugins` (Removed)
 Hashicorp now recommends _directly_ connecting Packer (with the WinRM Communicator) from the Control Node (Drone) to the Target Node being configured (Packer Builder EC2 Instance) rather than via the Communicator proxy provided by the connection plugin. <br>
