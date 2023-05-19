@@ -15,8 +15,8 @@
         Add-WindowsFeature –Name GPMC
         Add-WindowsFeature -Name Telnet-Client
         Install-Module -Name PSSlack -RequiredVersion 1.0.2
-        Install-WindowsFeature -Name "RSAT-AD-PowerShell" -IncludeAllSubFeature
-        Import-Module -Name ActiveDirectory
+#        Install-WindowsFeature -Name "RSAT-AD-PowerShell" -IncludeAllSubFeature
+#        Import-Module -Name ActiveDirectory
 
 #    - name: Create Directories
 #      win_shell: |
