@@ -15,7 +15,7 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "dq-ops-win-nineteen-bastion-270"
+          "name": "dq-ops-win-nineteen-bastion-274"
         },
         "owners": [
           "093401982388"
