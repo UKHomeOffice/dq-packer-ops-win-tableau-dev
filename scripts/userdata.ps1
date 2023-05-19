@@ -115,9 +115,43 @@ else
 }
 
 
-Write-Host 'Adding bucket variable'
-[Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment/sqlworkbench", "Machine")
-[System.Environment]::SetEnvironmentVariable('S3_OPS_CONFIG_BUCKET','s3-dq-ops-config-$environment/sqlworkbench')
+Write-Host 'Environment Variables'
+$env_flag_file = "\scripts\env.txt"
+if (-not (Test-Path $env_flag_file))
+{
+    Write-Host 'Adding config bucket environment variable'
+    [Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment/sqlworkbench", "Machine")
+    [System.Environment]::SetEnvironmentVariable('S3_OPS_CONFIG_BUCKET', 's3-dq-ops-config-$environment/sqlworkbench')
+    New-Item -Path $env_flag_file -ItemType "file" -Value "Environment variables added. Remove this file to re-add."
+}
+else
+{
+    Write-Host 'Environment variables already'
+}
+
+
+Write-Host 'Region and Locale'
+$reg_flag_file = "\scripts\reg.txt"
+if (-not (Test-Path $reg_flag_file))
+{
+    Write-Host 'Setting home location to the United Kingdom'
+    Set-WinHomeLocation 242
+
+    Write-Host 'Setting system local'
+    Set-WinSystemLocale en-GB
+
+    Write-Host 'Setting regional format (date/time etc.) to English (United Kingdon) - this applies to all users'
+    Set-Culture en-GB
+
+    Write-Host 'Setting TimeZone to GMT'
+    Set-TimeZone "GMT Standard Time"
+    New-Item -Path $reg_flag_file -ItemType "file" -Value "Region and Locale set. Remove this file to re-add."
+}
+else
+{
+    Write-Host 'Region and Locale already set'
+}
+
 
 # Rename Computer and Join to Domain
 # If the host has not already joined the domain and it is a genuine environment
@@ -153,7 +187,7 @@ if ($is_part_of_domain -eq $false -and $is_part_of_valid -eq $true -and
 }
 else
 {
-    Write-Host "Not trying to join domain"
+    Write-Host "Host already joined to domain"
 }
 
 Stop-Transcript
