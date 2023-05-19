@@ -2,21 +2,21 @@
   hosts: all
   gather_facts: false
   tasks:
-#    - name: Firewall Profile and Rules
-#      win_shell: |
-#        Set-NetFirewallProfile -Profile Domain -Enabled False
-#        Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
-#
-#    - name: Install AD UAC, GPM
-#      win_shell: |
-#        Install-PackageProvider -Name NuGet -RequiredVersion 2.8.5.201 -Force
-#        Import-Module ServerManager
-#        Add-WindowsFeature RSAT-ADDS-Tools
-#        Add-WindowsFeature –Name GPMC
-#        Add-WindowsFeature -Name Telnet-Client
-#        Install-Module -Name PSSlack -RequiredVersion 1.0.2
-#        Install-WindowsFeature -Name "RSAT-AD-PowerShell" -IncludeAllSubFeature
-#        Import-Module -Name ActiveDirectory
+    - name: Firewall Profile and Rules
+      win_shell: |
+        Set-NetFirewallProfile -Profile Domain -Enabled False
+        Set-NetFirewallRule -Group "@FirewallAPI.dll,-28502" -Direction Inbound -Profile Domain -Enabled True
+
+    - name: Install AD UAC, GPM
+      win_shell: |
+        Install-PackageProvider -Name NuGet -RequiredVersion 2.8.5.201 -Force
+        Import-Module ServerManager
+        Add-WindowsFeature RSAT-ADDS-Tools
+        Add-WindowsFeature –Name GPMC
+        Add-WindowsFeature -Name Telnet-Client
+        Install-Module -Name PSSlack -RequiredVersion 1.0.2
+        Install-WindowsFeature -Name "RSAT-AD-PowerShell" -IncludeAllSubFeature
+        Import-Module -Name ActiveDirectory
 
 #    - name: Create Directories
 #      win_shell: |
