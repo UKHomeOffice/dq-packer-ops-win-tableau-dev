@@ -86,7 +86,7 @@ Write-Host "The current hostname is $current_hostname"
 if (!($environment -eq "NotProd" -or $environment -eq "Prod"))
 {
     Write-Host "As the environment is $environment, not trying set up any more. Exiting..."
-    Exit 1
+    Exit 0
 }
 
 # Only attempt the following if we operating in a known environment
@@ -126,7 +126,7 @@ if (-not (Test-Path $env_flag_file))
     Write-Host 'Setting config bucket environment variable'
     [Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment/sqlworkbench", "Machine")
     [System.Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment/sqlworkbench")
-    New-Item -Path $env_flag_file -ItemType "file" -Value "Environment variables set. Remove this file to re-run."
+    New-Item -Path $env_flag_file -ItemType "file" -Value "Environment variables set. Remove this file to re-run." | Out-Null
 }
 else
 {
@@ -138,29 +138,73 @@ Write-Host 'Region and Locale'
 $reg_flag_file = "\PerfLogs\reg.txt"
 if (-not (Test-Path $reg_flag_file))
 {
-    Write-Host 'Setting home location to the United Kingdom'
-    Set-WinHomeLocation 242
-    $result1 = $?
-
-    Write-Host 'Setting system local'
-    Set-WinSystemLocale en-GB
-    $result2 = $?
-
-    Write-Host 'Setting regional format (date/time etc.) to English (United Kingdon) - this applies to all users'
-    Set-Culture en-GB
-    $result3 = $?
-
-    Write-Host 'Setting TimeZone to GMT'
-    Set-TimeZone "GMT Standard Time"
-    $result4 = $?
-
-    if ($result1 -and $result2 -and $result3 -and $result4)
+    Write-Host "Home Location"
+    $reg_home_loc = $False
+    $home_location = Get-WinHomeLocation
+    if ($home_location.GeoId -eq "242")
     {
-        New-Item -Path $reg_flag_file -ItemType "file" -Value "Region and Locale set. Remove this file to re-add."
+        Write-Host "Home Location already set to United Kingdom"
+        $reg_home_loc = $True # only set to true when confirmed correct via Get (not after Set)
     }
     else
     {
-        Write-Host "Failed to set Region and Locale"
+        Write-Host 'Setting home location to the United Kingdom'
+        Set-WinHomeLocation 242
+    }
+
+
+    Write-Host 'System Locale'
+    $reg_sys_loc = $False
+    $sys_loc = Get-WinSystemLocale
+    if ($sys_loc.Name -eq "en-GB")
+    {
+        Write-Host "System Locale already set to British"
+        $reg_sys_loc = $True # only set to true when confirmed correct via Get (not after Set)
+    }
+    else
+    {
+        Write-Host "Setting System Locale to British"
+        Set-WinSystemLocale en-GB
+    }
+
+
+    Write-Host "Region"
+    $reg_reg_cult = $False
+    $reg_cult = Get-Culture
+    if ($reg_cult.Name -eq "en-GB")
+    {
+        Write-Host "Regional format already set to British"
+        $reg_reg_cult = $True # only set to true when confirmed correct via Get (not after Set)
+    }
+    else
+    {
+        Write-Host 'Setting regional format (date/time etc.) to English (United Kingdon) - this applies to all users'
+        Set-WinSystemLocale en-GB
+    }
+
+
+    Write-Host "TimeZone"
+    $reg_time_zone = $False
+    $time_zone = Get-TimeZone
+    if ($time_zone.Id -eq "GMT Standard Time")
+    {
+        Write-Host "TimeZone already set to GMT"
+        $reg_time_zone = $True # only set to true when confirmed correct via Get (not after Set)
+    }
+    else
+    {
+        Write-Host 'Setting TimeZone to GMT'
+        Set-TimeZone "GMT Standard Time"
+    }
+
+
+    if ($reg_home_loc -and $reg_sys_loc -and $reg_reg_cult -and $reg_time_zone)
+    {
+        New-Item -Path $reg_flag_file -ItemType "file" -Value "Region and Locale set. Remove this file to re-add." | Out-Null
+    }
+    else
+    {
+        Write-Host "Region and Locale not confirmed as set yet"
     }
 }
 else
