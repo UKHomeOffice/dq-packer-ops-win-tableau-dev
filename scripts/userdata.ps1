@@ -86,7 +86,7 @@ Write-Host "The current hostname is $current_hostname"
 if (!($environment -eq "NotProd" -or $environment -eq "Prod"))
 {
     Write-Host "As the environment is $environment, not trying set up any more. Exiting..."
-    Exit 1
+    Exit 0
 }
 
 # Only attempt the following if we operating in a known environment
