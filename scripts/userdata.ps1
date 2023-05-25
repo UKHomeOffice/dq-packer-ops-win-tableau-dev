@@ -179,7 +179,7 @@ if (-not (Test-Path $reg_flag_file))
     else
     {
         Write-Host 'Setting regional format (date/time etc.) to English (United Kingdon) - this applies to all users'
-        Set-WinSystemLocale en-GB
+        Set-Culture en-GB
     }
 
 
