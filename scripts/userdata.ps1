@@ -75,6 +75,7 @@ else
 {
     $environment = "UNKNOWN"
 }
+$environment_lc = $environment.ToLower()
 Write-Host ">>>>>>>>>>> Environment is $environment! <<<<<<<<<<<<<"
 
 
@@ -124,8 +125,8 @@ $env_flag_file = "\PerfLogs\env.txt"
 if (-not (Test-Path $env_flag_file))
 {
     Write-Host 'Setting config bucket environment variable'
-    [Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment/sqlworkbench", "Machine")
-    [System.Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment/sqlworkbench")
+    [Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment_lc/sqlworkbench", "Machine")
+    [System.Environment]::SetEnvironmentVariable("S3_OPS_CONFIG_BUCKET", "s3-dq-ops-config-$environment_lc/sqlworkbench")
     New-Item -Path $env_flag_file -ItemType "file" -Value "Environment variables set. Remove this file to re-run." | Out-Null
 }
 else
