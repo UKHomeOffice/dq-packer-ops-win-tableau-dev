@@ -2,9 +2,11 @@
   hosts: all
   gather_facts: false
   tasks:
-    - name: GET config files from S3
+    - name: GET CloudWatch and PSSlack files from S3
       win_shell: aws s3 cp s3://dq-config-bucket/dq-ops-win/ C:\tmp\install\ --recursive
-    - win_shell: aws s3 cp s3://dq-config-bucket/dq-tableau/gold-master/TableauDesktop-GoldMaster.exe C:\tmp\install\
+
+    - name: GET Tableau files from S3
+      win_shell: aws s3 cp s3://dq-config-bucket/dq-tableau/gold-master/TableauDesktop-GoldMaster.exe C:\tmp\install\
 
     - name: Install Tableau Desktop
       win_shell: C:\tmp\install\TableauDesktop-GoldMaster.exe /quiet /norestart ACCEPTEULA=1
