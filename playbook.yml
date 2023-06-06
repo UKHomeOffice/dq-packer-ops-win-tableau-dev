@@ -2,16 +2,26 @@
   hosts: all
   gather_facts: false
   tasks:
-    - name: GET config files from S3
+    - name: GET CloudWatch and PSSlack files from S3
       win_shell: aws s3 cp s3://dq-config-bucket/dq-ops-win/ C:\tmp\install\ --recursive
-      args:
-        executable: powershell.exe
-    - win_shell: aws s3 cp s3://dq-config-bucket/dq-tableau/gold-master/TableauDesktop-GoldMaster.exe C:\tmp\install\
+
+    - name: GET Tableau files from S3
+      win_shell: aws s3 cp s3://dq-config-bucket/dq-tableau/gold-master/TableauDesktop-GoldMaster.exe C:\tmp\install\
 
     - name: Install Tableau Desktop
       win_shell: C:\tmp\install\TableauDesktop-GoldMaster.exe /quiet /norestart ACCEPTEULA=1
-      args:
-        executable: powershell.exe
+
+    - name: Copy Athena DB Driver (from SQLWorkbench - where they were downloaded by Windows Bastion - to Tableau)
+      win_copy:
+        src: C:\Users\Public\Desktop\SQLWorkbench\AthenaJDBC42.jar
+        dest: C:\Program Files\Tableau\Drivers\
+        remote_src: true
+
+    - name: Copy Postgres DB Driver (from SQLWorkbench - where they were downloaded by Windows Bastion - to Tableau)
+      win_copy:
+        src: C:\Users\Public\Desktop\SQLWorkbench\postgresql-42.jar
+        dest: C:\Program Files\Tableau\Drivers\
+        remote_src: true
 
     - name: Copy userdata script
       win_copy:
