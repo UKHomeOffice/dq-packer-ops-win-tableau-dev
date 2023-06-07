@@ -15,7 +15,7 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "dq-ops-win-bastion-283"
+          "name": "dq-ops-win-bastion-284"
         },
         "owners": [
           "093401982388"
