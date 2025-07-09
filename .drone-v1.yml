@@ -150,8 +150,8 @@ steps:
   - cd /home/packer
   - ./copy-ami-to-prod.sh
   when:
-    #branch:
-    #- master
+    branch:
+    - master
     event:
     - push
   depends_on:
