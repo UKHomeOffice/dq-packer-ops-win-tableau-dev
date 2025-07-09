@@ -108,6 +108,7 @@ steps:
   pull: always
   image: *copy-image
   commands:
+  - apk add --no-cache aws-cli bash
   - source ./set_aws_secrets_np.sh
   - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-tab-dev-*""
   - export os="win2019"
