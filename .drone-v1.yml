@@ -129,7 +129,7 @@ steps:
 
       # Get the latest AMI with name dq-ops-win-tab-dev-*
       AMI_INFO=$(aws ec2 describe-images \
-        --owners 093401982388 \
+        --owners 483846886818 \
         --filters "Name=name,Values=dq-ops-win-tab-dev-*" \
         --query 'Images | sort_by(@, &CreationDate)[-1].[ImageId,Name]' \
         --output text)
@@ -169,7 +169,7 @@ steps:
     - |
       # Get the latest dq-ops-win-tab-dev AMI
       AMI_INFO=$(aws ec2 describe-images \
-        --owners 093401982388 \
+        --owners 483846886818 \
         --filters "Name=name,Values=dq-ops-win-tab-dev-*" \
         --query 'Images | sort_by(@, &CreationDate)[-1].[ImageId,Name]' \
         --output text)
