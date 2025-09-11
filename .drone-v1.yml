@@ -122,11 +122,12 @@ steps:
 
 - name: share-notprod-snapshot
   image: amazon/aws-cli
-  pull: always
   commands:
-    - source ./set_aws_secrets_ci.sh
+    - source ./set_aws_secrets_np.sh
     - |
-      # Get the latest AMI ID for Windows tab dev image
+      echo "Looking for latest AMI created by packer-copy-notprod..."
+
+      # Get the latest AMI with name dq-ops-win-tab-dev-*
       AMI_INFO=$(aws ec2 describe-images \
         --owners 093401982388 \
         --filters "Name=name,Values=dq-ops-win-tab-dev-*" \
@@ -134,19 +135,23 @@ steps:
         --output text)
 
       AMI_ID=$(echo "$AMI_INFO" | awk '{print $1}')
-      echo "Latest AMI ID found: $AMI_ID"
+      AMI_NAME=$(echo "$AMI_INFO" | awk '{print $2}')
 
-      # Get all associated snapshot IDs
+      echo "Latest AMI ID: $AMI_ID"
+      echo "AMI Name: $AMI_NAME"
+
+      # Get snapshot IDs from this AMI
       SNAPSHOT_IDS=$(aws ec2 describe-images \
-        --image-ids $AMI_ID \
+        --image-ids "$AMI_ID" \
         --query 'Images[0].BlockDeviceMappings[].Ebs.SnapshotId' \
         --output text)
 
-      # Share snapshots with specified AWS accounts
+      echo "Sharing the following snapshots: $SNAPSHOT_IDS"
+
       for SNAPSHOT_ID in $SNAPSHOT_IDS; do
-        echo "Sharing snapshot $SNAPSHOT_ID with accounts: 483846886818, 337779336338"
+        echo "Sharing snapshot $SNAPSHOT_ID with NotProd and Prod accounts"
         aws ec2 modify-snapshot-attribute \
-          --snapshot-id $SNAPSHOT_ID \
+          --snapshot-id "$SNAPSHOT_ID" \
           --attribute createVolumePermission \
           --operation-type add \
           --user-ids 483846886818 337779336338
@@ -156,6 +161,58 @@ steps:
       - push
   depends_on:
     - packer-copy-notprod
+
+- name: copy-ami-tab-dev
+  image: amazon/aws-cli
+  commands:
+    - source ./set_aws_secrets_np.sh
+    - |
+      # Get the latest dq-ops-win-tab-dev AMI
+      AMI_INFO=$(aws ec2 describe-images \
+        --owners 093401982388 \
+        --filters "Name=name,Values=dq-ops-win-tab-dev-*" \
+        --query 'Images | sort_by(@, &CreationDate)[-1].[ImageId,Name]' \
+        --output text)
+
+      AMI_ID=$(echo "$AMI_INFO" | awk '{print $1}')
+      AMI_NAME=$(echo "$AMI_INFO" | awk '{print $2}')
+
+      echo "Latest dq-ops-win-tab-dev AMI ID: $AMI_ID"
+      echo "AMI Name: $AMI_NAME"
+
+      # Copy the AMI
+      COPY_NAME="$AMI_NAME - copied for notprod - $AMI_ID"
+
+      aws ec2 copy-image \
+        --source-image-id "$AMI_ID" \
+        --source-region eu-west-2 \
+        --name "$COPY_NAME" \
+        --description "Copied dq-ops-win-tab-dev AMI $AMI_NAME ($AMI_ID)"
+
+      echo "Waiting for $AMI_ID to become available..."
+
+      aws ec2 wait image-available --image-ids "$AMI_ID"
+
+      echo "$AMI_ID is now available"
+
+      echo "Waiting for associated snapshots to become available..."
+
+      SNAPSHOT_IDS=$(aws ec2 describe-images \
+        --image-ids "$AMI_ID" \
+        --query 'Images[0].BlockDeviceMappings[].Ebs.SnapshotId' \
+        --output text)
+
+      for SNAPSHOT_ID in $SNAPSHOT_IDS; do
+        echo "Waiting for snapshot $SNAPSHOT_ID to become available..."
+        aws ec2 wait snapshot-completed --snapshot-ids "$SNAPSHOT_ID"
+      done
+
+      echo "All snapshots for $AMI_ID are now available!"
+  when:
+    event:
+      - push
+  depends_on:
+    - share-notprod-snapshot
 
 - name: retrieve_aws_secrets_prod
   pull: if-not-exists
