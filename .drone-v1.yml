@@ -212,7 +212,7 @@ steps:
     event:
       - push
   depends_on:
-    - share-notprod-snapshot
+    - share-tab-dev-snapshot
 
 - name: retrieve_aws_secrets_prod
   pull: if-not-exists
