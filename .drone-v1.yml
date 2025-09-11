@@ -120,7 +120,7 @@ steps:
   depends_on:
     - retrieve_aws_secrets_np
 
-- name: share-notprod-snapshot
+- name: share-tab-dev-snapshot
   image: amazon/aws-cli
   commands:
     - source ./set_aws_secrets_np.sh
