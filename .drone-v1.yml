@@ -155,7 +155,7 @@ steps:
     event:
       - push
   depends_on:
-    - build
+    - packer-copy-notprod
 
 - name: retrieve_aws_secrets_prod
   pull: if-not-exists
