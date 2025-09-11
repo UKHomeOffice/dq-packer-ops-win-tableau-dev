@@ -120,6 +120,43 @@ steps:
   depends_on:
     - retrieve_aws_secrets_np
 
+- name: share-notprod-snapshot
+  image: amazon/aws-cli
+  pull: always
+  commands:
+    - source ./set_aws_secrets_ci.sh
+    - |
+      # Get the latest AMI ID for Windows tab dev image
+      AMI_INFO=$(aws ec2 describe-images \
+        --owners 093401982388 \
+        --filters "Name=name,Values=dq-ops-win-tab-dev-*" \
+        --query 'Images | sort_by(@, &CreationDate)[-1].[ImageId,Name]' \
+        --output text)
+
+      AMI_ID=$(echo "$AMI_INFO" | awk '{print $1}')
+      echo "Latest AMI ID found: $AMI_ID"
+
+      # Get all associated snapshot IDs
+      SNAPSHOT_IDS=$(aws ec2 describe-images \
+        --image-ids $AMI_ID \
+        --query 'Images[0].BlockDeviceMappings[].Ebs.SnapshotId' \
+        --output text)
+
+      # Share snapshots with specified AWS accounts
+      for SNAPSHOT_ID in $SNAPSHOT_IDS; do
+        echo "Sharing snapshot $SNAPSHOT_ID with accounts: 483846886818, 337779336338"
+        aws ec2 modify-snapshot-attribute \
+          --snapshot-id $SNAPSHOT_ID \
+          --attribute createVolumePermission \
+          --operation-type add \
+          --user-ids 483846886818 337779336338
+      done
+  when:
+    event:
+      - push
+  depends_on:
+    - build
+
 - name: retrieve_aws_secrets_prod
   pull: if-not-exists
   image: *vault-image
@@ -138,24 +175,24 @@ steps:
   depends_on:
     - build
 
-- name: packer-copy-prod
-  pull: if-not-exists
-  image: *copy-image
-  commands:
-  - source ./set_aws_secrets_prod.sh
-  - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-tab-dev-*""
-  - export os="win2019"
-  - export HOME=/home/packer
-  - packer --version
-  - cd /home/packer
-  - ./build.sh
-  when:
-    branch:
-    - master
-    event:
-    - push
-  depends_on:
-    - retrieve_aws_secrets_prod
+#- name: packer-copy-prod
+#  pull: if-not-exists
+#  image: *copy-image
+#  commands:
+#  - source ./set_aws_secrets_prod.sh
+#  - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-tab-dev-*""
+#  - export os="win2019"
+#  - export HOME=/home/packer
+#  - packer --version
+#  - cd /home/packer
+#  - ./build.sh
+#  when:
+#    branch:
+#    - master
+#    event:
+#    - push
+#  depends_on:
+#    - retrieve_aws_secrets_prod
 
 - name: renew-vault-tokens
   pull: if-not-exists
