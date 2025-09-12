@@ -88,21 +88,21 @@ steps:
   depends_on:
     - retrieve_aws_secrets_ci
 
-- name: retrieve_aws_secrets_np
-  pull: if-not-exists
-  image: *vault-image
-  commands:
-    *retrieve-deployment-aws-key
-  environment:
-    VAULT_ADDR:
-      from_secret: VAULT_ADDR_NOTPROD
-    VAULT_TOKEN:
-      from_secret: VAULT_TOKEN_NOTPROD
-  when:
-    event:
-      - push
-  depends_on:
-    - build
+#- name: retrieve_aws_secrets_np
+#  pull: if-not-exists
+#  image: *vault-image
+#  commands:
+#    *retrieve-deployment-aws-key
+#  environment:
+#   VAULT_ADDR:
+#      from_secret: VAULT_ADDR_NOTPROD
+#    VAULT_TOKEN:
+#      from_secret: VAULT_TOKEN_NOTPROD
+#  when:
+#    event:
+#      - push
+#  depends_on:
+#    - build
 
 #- name: packer-copy-notprod
 #  pull: always
@@ -124,7 +124,7 @@ steps:
 #  depends_on:
 #    - retrieve_aws_secrets_np
 
-- name: share-tab-dev-snapshot
+- name: share-ci-tab-dev-snapshot
   image: amazon/aws-cli
   commands:
     - source ./set_aws_secrets_np.sh
@@ -164,9 +164,9 @@ steps:
     event:
       - push
   depends_on:
-    - packer-copy-notprod
+    - build
 
-- name: copy-ami-tab-dev
+- name: copy-ci-ami-tab-dev
   image: amazon/aws-cli
   commands:
     - source ./set_aws_secrets_np.sh
@@ -216,25 +216,25 @@ steps:
     event:
       - push
   depends_on:
-    - share-tab-dev-snapshot
+    - share-ci-tab-dev-snapshot
 
-- name: retrieve_aws_secrets_prod
-  pull: if-not-exists
-  image: *vault-image
-  commands:
-    *retrieve-deployment-aws-key
-  environment:
-    VAULT_ADDR:
-      from_secret: VAULT_ADDR_PROD
-    VAULT_TOKEN:
-      from_secret: VAULT_TOKEN_PROD
-  when:
-    branch:
-    - master
-    event:
-    - push
-  depends_on:
-    - copy-ami-tab-dev
+#- name: retrieve_aws_secrets_prod
+#  pull: if-not-exists
+#  image: *vault-image
+# commands:
+#    *retrieve-deployment-aws-key
+#  environment:
+#    VAULT_ADDR:
+#      from_secret: VAULT_ADDR_PROD
+#    VAULT_TOKEN:
+#      from_secret: VAULT_TOKEN_PROD
+#  when:
+#   branch:
+#    - master
+#    event:
+#    - push
+#  depends_on:
+#    - copy-ci-ami-tab-dev
 
 #- name: packer-copy-prod
 #  pull: if-not-exists
