@@ -234,7 +234,7 @@ steps:
     event:
     - push
   depends_on:
-    - build
+    - copy-ami-tab-dev
 
 #- name: packer-copy-prod
 #  pull: if-not-exists
