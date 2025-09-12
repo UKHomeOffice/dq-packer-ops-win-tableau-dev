@@ -88,22 +88,6 @@ steps:
   depends_on:
     - retrieve_aws_secrets_ci
 
-- name: retrieve_aws_secrets_np
-  pull: if-not-exists
-  image: *vault-image
-  commands:
-    *retrieve-deployment-aws-key
-  environment:
-   VAULT_ADDR:
-      from_secret: VAULT_ADDR_NOTPROD
-   VAULT_TOKEN:
-      from_secret: VAULT_TOKEN_NOTPROD
-  when:
-    event:
-      - push
-  depends_on:
-    - build
-
 #- name: packer-copy-notprod
 #  pull: always
 #  image: *copy-image
@@ -127,9 +111,9 @@ steps:
 - name: share-ci-tab-dev-snapshot
   image: amazon/aws-cli
   commands:
-    - source ./set_aws_secrets_np.sh
+    - source ./set_aws_secrets_ci.sh
     - |
-      echo "Looking for latest AMI created by packer-copy-notprod..."
+      echo "Looking for latest AMI created by build step..."
 
       # Get the latest AMI with name dq-ops-win-tab-dev-*
       AMI_INFO=$(aws ec2 describe-images \
@@ -153,12 +137,12 @@ steps:
       echo "Sharing the following snapshots: $SNAPSHOT_IDS"
 
       for SNAPSHOT_ID in $SNAPSHOT_IDS; do
-        echo "Sharing snapshot $SNAPSHOT_ID with Prod accounts"
+        echo "Sharing snapshot $SNAPSHOT_ID with accounts: NOTPROD, PROD"
         aws ec2 modify-snapshot-attribute \
           --snapshot-id "$SNAPSHOT_ID" \
           --attribute createVolumePermission \
           --operation-type add \
-          --user-ids 337779336338
+          --user-ids 337779336338 483846886818
       done
   when:
     event:
@@ -166,7 +150,23 @@ steps:
   depends_on:
     - build
 
-- name: copy-ci-ami-tab-dev
+- name: retrieve_aws_secrets_np
+  pull: if-not-exists
+  image: *vault-image
+  commands:
+    *retrieve-deployment-aws-key
+  environment:
+    VAULT_ADDR:
+      from_secret: VAULT_ADDR_NOTPROD
+    VAULT_TOKEN:
+      from_secret: VAULT_TOKEN_NOTPROD
+  when:
+    event:
+      - push
+  depends_on:
+    - share-ci-tab-dev-snapshot
+
+- name: copy-ami-tab-dev-to-np
   image: amazon/aws-cli
   commands:
     - source ./set_aws_secrets_np.sh
@@ -181,11 +181,11 @@ steps:
       AMI_ID=$(echo "$AMI_INFO" | awk '{print $1}')
       AMI_NAME=$(echo "$AMI_INFO" | awk '{print $2}')
 
-      echo "Latest dq-ops-win-tab-dev AMI ID: $AMI_ID from NOTPROD"
+      echo "Latest dq-ops-win-tab-dev AMI ID: $AMI_ID"
       echo "AMI Name: $AMI_NAME"
 
       # Copy the AMI
-      COPY_NAME="$AMI_NAME - copied for PROD - $AMI_ID from NOTPROD"
+      COPY_NAME="$AMI_NAME - copied for notprod - $AMI_ID"
 
       aws ec2 copy-image \
         --source-image-id "$AMI_ID" \
@@ -216,25 +216,25 @@ steps:
     event:
       - push
   depends_on:
-    - share-ci-tab-dev-snapshot
+    - retrieve_aws_secrets_np
 
-#- name: retrieve_aws_secrets_prod
-#  pull: if-not-exists
-#  image: *vault-image
-# commands:
-#    *retrieve-deployment-aws-key
-#  environment:
-#    VAULT_ADDR:
-#      from_secret: VAULT_ADDR_PROD
-#    VAULT_TOKEN:
-#      from_secret: VAULT_TOKEN_PROD
-#  when:
-#   branch:
-#    - master
-#    event:
-#    - push
-#  depends_on:
-#    - copy-ci-ami-tab-dev
+- name: retrieve_aws_secrets_prod
+  pull: if-not-exists
+  image: *vault-image
+  commands:
+    *retrieve-deployment-aws-key
+  environment:
+    VAULT_ADDR:
+      from_secret: VAULT_ADDR_PROD
+    VAULT_TOKEN:
+      from_secret: VAULT_TOKEN_PROD
+  when:
+   branch:
+    - master
+   event:
+    - push
+  depends_on:
+    - share-ci-tab-dev-snapshot
 
 #- name: packer-copy-prod
 #  pull: if-not-exists
