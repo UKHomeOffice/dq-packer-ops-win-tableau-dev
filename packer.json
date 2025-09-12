@@ -2,6 +2,7 @@
   "variables": {
     "access_key": "{{env `AWS_ACCESS_KEY_ID`}}",
     "secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}",
+    "kms_key_id": "{{env `CI_KMS_KEY_ID`}}",
     "drone_build_number": "{{env `DRONE_BUILD_NUMBER`}}"
   },
   "sensitive-variables": ["access_key", "secret_key"],
@@ -12,6 +13,7 @@
       "secret_key": "{{user `secret_key`}}",
       "region": "eu-west-2",
       "iam_instance_profile": "packer_builder",
+      "kms_key_id": "{{user `kms_key_id`}}",
       "temporary_security_group_source_public_ip": true,
       "source_ami_filter": {
         "filters": {
@@ -28,6 +30,7 @@
           "device_name": "/dev/sda1",
           "volume_size": 500,
           "volume_type": "gp2",
+          "kms_key_id": "{{user `kms_key_id`}}",
           "delete_on_termination": true
         }
       ],
