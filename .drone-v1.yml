@@ -104,25 +104,25 @@ steps:
   depends_on:
     - build
 
-- name: packer-copy-notprod
-  pull: always
-  image: *copy-image
-  environment:
-    kms_key_id:
-      from_secret: CI_KMS_KEY_ID
-  commands:
-  - source ./set_aws_secrets_np.sh
-  - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-tab-dev-*""
-  - export os="win2019"
-  - export HOME=/home/packer
-  - export kms_key_id=$${kms_key_id}
-  - cd /home/packer
-  - ./build.sh
-  when:
-    event:
-    - push
-  depends_on:
-    - retrieve_aws_secrets_np
+#- name: packer-copy-notprod
+#  pull: always
+#  image: *copy-image
+#  environment:
+#    kms_key_id:
+#      from_secret: CI_KMS_KEY_ID
+#  commands:
+#  - source ./set_aws_secrets_np.sh
+#  - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-tab-dev-*""
+#  - export os="win2019"
+#  - export HOME=/home/packer
+#  - export kms_key_id=$${kms_key_id}
+#  - cd /home/packer
+#  - ./build.sh
+#  when:
+#    event:
+#    - push
+#  depends_on:
+#    - retrieve_aws_secrets_np
 
 - name: share-tab-dev-snapshot
   image: amazon/aws-cli
@@ -133,7 +133,7 @@ steps:
 
       # Get the latest AMI with name dq-ops-win-tab-dev-*
       AMI_INFO=$(aws ec2 describe-images \
-        --owners 483846886818 \
+        --owners 093401982388 \
         --filters "Name=name,Values=dq-ops-win-tab-dev-*" \
         --query 'Images | sort_by(@, &CreationDate)[-1].[ImageId,Name]' \
         --output text)
@@ -173,7 +173,7 @@ steps:
     - |
       # Get the latest dq-ops-win-tab-dev AMI
       AMI_INFO=$(aws ec2 describe-images \
-        --owners 483846886818 \
+        --owners 093401982388 \
         --filters "Name=name,Values=dq-ops-win-tab-dev-*" \
         --query 'Images | sort_by(@, &CreationDate)[-1].[ImageId,Name]' \
         --output text)
