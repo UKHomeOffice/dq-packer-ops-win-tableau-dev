@@ -107,11 +107,15 @@ steps:
 - name: packer-copy-notprod
   pull: always
   image: *copy-image
+  environment:
+    kms_key_id:
+      from_secret: CI_KMS_KEY_ID
   commands:
   - source ./set_aws_secrets_np.sh
   - export filters="--owner 093401982388 --filters "Name=name,Values=dq-ops-win-tab-dev-*""
   - export os="win2019"
   - export HOME=/home/packer
+  - export kms_key_id=$${kms_key_id}
   - cd /home/packer
   - ./build.sh
   when:
@@ -149,12 +153,12 @@ steps:
       echo "Sharing the following snapshots: $SNAPSHOT_IDS"
 
       for SNAPSHOT_ID in $SNAPSHOT_IDS; do
-        echo "Sharing snapshot $SNAPSHOT_ID with NotProd and Prod accounts"
+        echo "Sharing snapshot $SNAPSHOT_ID with Prod accounts"
         aws ec2 modify-snapshot-attribute \
           --snapshot-id "$SNAPSHOT_ID" \
           --attribute createVolumePermission \
           --operation-type add \
-          --user-ids 483846886818 337779336338
+          --user-ids 337779336338
       done
   when:
     event:
@@ -177,11 +181,11 @@ steps:
       AMI_ID=$(echo "$AMI_INFO" | awk '{print $1}')
       AMI_NAME=$(echo "$AMI_INFO" | awk '{print $2}')
 
-      echo "Latest dq-ops-win-tab-dev AMI ID: $AMI_ID"
+      echo "Latest dq-ops-win-tab-dev AMI ID: $AMI_ID from NOTPROD"
       echo "AMI Name: $AMI_NAME"
 
       # Copy the AMI
-      COPY_NAME="$AMI_NAME - copied for notprod - $AMI_ID"
+      COPY_NAME="$AMI_NAME - copied for PROD - $AMI_ID from NOTPROD"
 
       aws ec2 copy-image \
         --source-image-id "$AMI_ID" \
