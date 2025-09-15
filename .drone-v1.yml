@@ -229,8 +229,8 @@ steps:
     VAULT_TOKEN:
       from_secret: VAULT_TOKEN_PROD
   when:
-   branch:
-    - master
+   #branch:
+   # - master
    event:
     - push
   depends_on:
