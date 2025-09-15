@@ -234,7 +234,59 @@ steps:
    event:
     - push
   depends_on:
-    - share-ci-tab-dev-snapshot
+    - copy-ami-tab-dev-to-np
+
+- name: copy-ami-tab-dev-to-prod
+  image: amazon/aws-cli
+  commands:
+    - source ./set_aws_secrets_prod.sh
+    - |
+      # Get the latest dq-ops-win-tab-dev AMI
+      AMI_INFO=$(aws ec2 describe-images \
+        --owners 093401982388 \
+        --filters "Name=name,Values=dq-ops-win-tab-dev-*" \
+        --query 'Images | sort_by(@, &CreationDate)[-1].[ImageId,Name]' \
+        --output text)
+
+      AMI_ID=$(echo "$AMI_INFO" | awk '{print $1}')
+      AMI_NAME=$(echo "$AMI_INFO" | awk '{print $2}')
+
+      echo "Latest dq-ops-win-tab-dev AMI ID: $AMI_ID"
+      echo "AMI Name: $AMI_NAME"
+
+      # Copy the AMI
+      COPY_NAME="$AMI_NAME - copied for notprod - $AMI_ID"
+
+      aws ec2 copy-image \
+        --source-image-id "$AMI_ID" \
+        --source-region eu-west-2 \
+        --name "$COPY_NAME" \
+        --description "Copied dq-ops-win-tab-dev AMI $AMI_NAME ($AMI_ID)"
+
+      echo "Waiting for $AMI_ID to become available..."
+
+      aws ec2 wait image-available --image-ids "$AMI_ID"
+
+      echo "$AMI_ID is now available"
+
+      echo "Waiting for associated snapshots to become available..."
+
+      SNAPSHOT_IDS=$(aws ec2 describe-images \
+        --image-ids "$AMI_ID" \
+        --query 'Images[0].BlockDeviceMappings[].Ebs.SnapshotId' \
+        --output text)
+
+      for SNAPSHOT_ID in $SNAPSHOT_IDS; do
+        echo "Waiting for snapshot $SNAPSHOT_ID to become available..."
+        aws ec2 wait snapshot-completed --snapshot-ids "$SNAPSHOT_ID"
+      done
+
+      echo "All snapshots for $AMI_ID are now available!"
+  when:
+    event:
+      - push
+  depends_on:
+    - retrieve_aws_secrets_prod
 
 #- name: packer-copy-prod
 #  pull: if-not-exists
