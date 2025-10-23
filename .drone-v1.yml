@@ -58,41 +58,57 @@ steps:
   depends_on:
     - validate
 
-- name: retrieve_aws_secrets_ci
-  pull: always
+# - name: retrieve_aws_secrets_ci
+#   pull: always
+#   image: *vault-image
+#   commands:
+#     *retrieve-deployment-aws-key
+#   environment:
+#     VAULT_ADDR:
+#       from_secret: VAULT_ADDR_SIT
+#     VAULT_TOKEN:
+#       from_secret: VAULT_TOKEN_SIT
+#   when:
+#     event:
+#       - push
+#   depends_on:
+#     - inspect
+
+- name: retrieve_aws_secrets_np
+  pull: if-not-exists
   image: *vault-image
   commands:
     *retrieve-deployment-aws-key
   environment:
     VAULT_ADDR:
-      from_secret: VAULT_ADDR_SIT
+      from_secret: VAULT_ADDR_NOTPROD
     VAULT_TOKEN:
-      from_secret: VAULT_TOKEN_SIT
-  when:
-    event:
-      - push
-  depends_on:
-    - inspect
-
-- name: build
-  pull: if-not-exists
-  image: *packer-image
-  commands:
-    - source ./set_aws_secrets_ci.sh
-    - export HOME=/home/packer
-    - export DRONE_BUILD_NUMBER=$${DRONE_BUILD_NUMBER}
-    - packer --version
-    - packer build packer.json
+      from_secret: VAULT_TOKEN_NOTPROD
   when:
     event:
     - push
   depends_on:
-    - retrieve_aws_secrets_ci
+    - inspect
+
+# - name: build
+#   pull: if-not-exists
+#   image: *packer-image
+#   commands:
+#     - source ./set_aws_secrets_ci.sh
+#     - export HOME=/home/packer
+#     - export DRONE_BUILD_NUMBER=$${DRONE_BUILD_NUMBER}
+#     - packer --version
+#     - packer build packer.json
+#   when:
+#     event:
+#     - push
+#   depends_on:
+#     - retrieve_aws_secrets_ci
 
 - name: get-ami-and-scan
   image: *trivy-image
   commands:
-    - source ./set_aws_secrets_ci.sh
+    - source ./set_aws_secrets_np.sh
     - |
       echo "Retrieving latest AMI..."
       AMI_INFO=$(aws ec2 describe-images \
@@ -110,7 +126,7 @@ steps:
     event:
       - push
   depends_on:
-    - build
+    - retrieve_aws_secrets_np
 
 # - name: share-ci-tab-dev-snapshot
 #   image: amazon/aws-cli
