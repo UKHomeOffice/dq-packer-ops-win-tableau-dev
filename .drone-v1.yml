@@ -206,7 +206,7 @@ steps:
       # Get the AMI ID built in CI (latest dq-ops-win-tab-dev-*)
       AMI_INFO=$(aws ec2 describe-images \
         --owners 093401982388 \
-        --filters "Name=name,Values=dq-ops-win-tab-dev--*" \
+        --filters "Name=name,Values=dq-ops-win-tab-dev-*" \
         --query 'Images | sort_by(@, &CreationDate)[-1].[ImageId,Name]' \
         --output text)
 
