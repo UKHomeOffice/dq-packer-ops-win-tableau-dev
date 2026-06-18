@@ -16,7 +16,7 @@
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
-          "name": "dq-ops-win-bastion-569"
+          "name": "dq-ops-win-bastion-611"
         },
         "owners": [
           "093401982388"
@@ -27,7 +27,7 @@
         {
           "device_name": "/dev/sda1",
           "volume_size": 500,
-          "volume_type": "gp2",
+          "volume_type": "gp3",
           "delete_on_termination": true
         }
       ],
