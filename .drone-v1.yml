@@ -165,7 +165,10 @@ steps:
       echo "AMI Name: $AMI_NAME"
 
       # Copy the AMI
-      COPY_NAME="$AMI_NAME - copied for notprod - $AMI_ID"
+      #COPY_NAME="$AMI_NAME - copied for notprod - $AMI_ID"
+      BUILD_NUMBER=$(echo "$AMI_NAME" | sed 's/dq-ops-win-tab-dev-//')
+      COPY_NAME="dq-ops-win-tab-notprod-${BUILD_NUMBER}"
+
 
       aws ec2 copy-image \
         --source-image-id "$AMI_ID" \
